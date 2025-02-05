@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class IsometricPlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float dashSpeed = 15f;
