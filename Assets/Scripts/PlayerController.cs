@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
@@ -8,7 +9,7 @@ public class PlayerController : MonoBehaviour
     public float dashCooldown = 1f;
 
     private Vector3 moveDirection;
-    private CharacterController controller;
+    private Rigidbody rb;
     private bool isDashing = false;
     private float dashTime;
     private float lastDashTime;
@@ -18,19 +19,40 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
+        Cursor.visible = false;
+        rb = GetComponent<Rigidbody>();
+        rb.drag = 5f;
+        rb.freezeRotation = true; // Prevent rotation due to physics
     }
 
     void Update()
     {
-        HandleMovement();
+        if (!isDashing)
+        {
+            HandleMovement();
+        }
+
         HandleDash();
+    }
+    void FixedUpdate()
+    {
+        if (isDashing)
+        {
+            return; // Do nothing while dashing
+        }
+
+        if (moveDirection.magnitude >= 0.1f)
+        {
+            rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
+        }
+        else
+        {
+            rb.velocity = new Vector3(0, rb.velocity.y, 0); // Stop drifting
+        }
     }
 
     void HandleMovement()
     {
-        if (isDashing) return;
-
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
@@ -38,7 +60,7 @@ public class PlayerController : MonoBehaviour
 
         if (moveDirection.magnitude >= 0.1f)
         {
-            controller.Move(moveDirection * moveSpeed * Time.deltaTime);
+            rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
         }
     }
 
@@ -49,15 +71,16 @@ public class PlayerController : MonoBehaviour
             isDashing = true;
             dashTime = Time.time + dashDuration;
             lastDashTime = Time.time;
+            rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
         }
 
         if (isDashing)
         {
-            controller.Move(moveDirection * dashSpeed * Time.deltaTime);
             if (Time.time >= dashTime)
             {
                 isDashing = false;
             }
         }
     }
+
 }
