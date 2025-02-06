@@ -26,9 +26,11 @@ public class EnemyHealth : MonoBehaviour
     void Update()
     {
         DrainHealth();
-        //healthSliderMain.transform.rotation = Quaternion.LookRotation(healthSliderMain.transform.position - cam.transform.position);
-        if(killing)
-        healthbarSprite.fillAmount = Mathf.MoveTowards(healthbarSprite.fillAmount,target,reduceSpeed* Time.deltaTime);
+        healthSliderMain.transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
+
+        // healthSliderMain.transform.rotation = Quaternion.LookRotation(cam.ViewportToWorldPoint(new Vector3(0f, 0f, 0f)));
+       
+           
 
     }
     public void DrainHealth()
@@ -36,25 +38,27 @@ public class EnemyHealth : MonoBehaviour
         if (killing)
         {
             health -= Time.deltaTime * damageMultiplier;
-            //healthSlider.value = health;
             UpdateHealthBar(health,maxHealth);
         }
         if (!killing && health <= maxHealth)
         {
             health += Time.deltaTime * damageMultiplier;
-           // healthSlider.value = health;
             UpdateHealthBar(health, maxHealth);
         }
     }
 
     [SerializeField] Image healthbarSprite;
-    [SerializeField] float reduceSpeed;
+    [SerializeField] float reduceSpeed = 2f;
     private float target = 1;
     public void UpdateHealthBar(float currentHealth, float maxHealth)
     {
-       target = currentHealth / maxHealth;
-        if(killing)
-            healthbarSprite.fillAmount = currentHealth / maxHealth;
+       healthbarSprite.fillAmount = currentHealth / maxHealth;
     }
+    public void DealDamage(float damage)
+    {
+        health -= damage;
+        healthbarSprite.fillAmount = health / maxHealth;
+    }
+    
     
 }

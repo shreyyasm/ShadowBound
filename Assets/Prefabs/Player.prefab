@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5348429428437886406}
   - component: {fileID: 6614808141465192295}
+  - component: {fileID: 4985568030189456047}
   - component: {fileID: 4097177047693946137}
   - component: {fileID: 1367598356116135026}
   - component: {fileID: 6590813841946259095}
@@ -49,10 +50,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a7c94860258f794f8da2da623a7b193, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 15
-  dashSpeed: 50
+  playerStatsData:
+  - PlayerLevel: Level 1
+    stats: {fileID: 11400000, guid: 416b88b1a50dc724b810d216f9c6fda2, type: 2}
+  - PlayerLevel: Level 2
+    stats: {fileID: 11400000, guid: 70c21d3480f3e1643ab6012868dd620f, type: 2}
+  - PlayerLevel: Level 3
+    stats: {fileID: 11400000, guid: 23220ef151b22944ca6f02f0061f461e, type: 2}
+  - PlayerLevel: Level 4
+    stats: {fileID: 11400000, guid: dff202cc5c0b0994ba9c65475be9bb5d, type: 2}
+  - PlayerLevel: Level 5
+    stats: {fileID: 11400000, guid: fb3b519e2ef31e041a7fc70b4daa0e33, type: 2}
+  - PlayerLevel: Level 6
+    stats: {fileID: 11400000, guid: 2070e358fa938df429f0c6306d55df17, type: 2}
+  playerStats: {fileID: 0}
+  moveSpeed: 0
+  dashSpeed: 0
   dashDuration: 0.4
   dashCooldown: 0.6
+  playerHealth: {fileID: 4985568030189456047}
+  controlingLife: 0
+  sphereCollider: {fileID: 1367598356116135026}
+--- !u!114 &4985568030189456047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639934866203218744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2a4752ef2eb1774ca9fee4811a2b359, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 0
+  maxHealth: 0
+  healthModifer: 0
+  damageMultiplier: 1
+  damaging: 0
+  consuming: 0
+  healthSlider: {fileID: 4036112164458236864}
 --- !u!54 &4097177047693946137
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -244,7 +281,6 @@ GameObject:
   - component: {fileID: 1078221659339587645}
   - component: {fileID: 9040304789762384736}
   - component: {fileID: 4406559957752299806}
-  - component: {fileID: 1335092840714372430}
   - component: {fileID: 8369409914903126994}
   m_Layer: 0
   m_Name: Sphere
@@ -318,27 +354,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1335092840714372430
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4767526778326661667}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8369409914903126994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -387,7 +402,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 238.3136, y: -47.7271}
+  m_AnchoredPosition: {x: 238.31372, y: -47.72705}
   m_SizeDelta: {x: 442.8271, y: 66.1608}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4036112164458236864
@@ -435,7 +450,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2501963036274545791}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 0.521
   m_OnValueChanged:

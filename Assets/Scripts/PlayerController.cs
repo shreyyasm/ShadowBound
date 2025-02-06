@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
@@ -20,6 +21,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 isoForward = new Vector3(1, 0, 1).normalized;
     private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
     public PlayerHealth playerHealth;
+
+    public bool controlingLife;
+
+    public SphereCollider sphereCollider;
 
     [System.Serializable]
     public class PlayerData
@@ -101,6 +106,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
         {
             isDashing = true;
+            sphereCollider.isTrigger = true;
             dashTime = Time.time + dashDuration;
             lastDashTime = Time.time;
             rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
@@ -111,8 +117,11 @@ public class PlayerController : MonoBehaviour
             if (Time.time >= dashTime)
             {
                 isDashing = false;
+                sphereCollider.isTrigger = false;
             }
         }
     }
+   
 
+    
 }

@@ -10,10 +10,11 @@ public class NPCPatrol : MonoBehaviour
     private NavMeshAgent agent;
     private float nextMoveTime;
     private Vector3 startPosition;
-    private bool isControlled = false;
+    public bool isControlled = false;
     private GameObject player;
     private PlayerController playerController;
     public bool interacting;
+    public bool canSwitch;
 
     public Outlinable outline;
     void Start()
@@ -39,15 +40,24 @@ public class NPCPatrol : MonoBehaviour
                 nextMoveTime = Time.time + roamDelay;
             }
         }
-        if (interacting && Input.GetMouseButtonDown(0) && !isControlled)
+        if (interacting && Input.GetMouseButtonDown(1) && !isControlled)
         {
             TakeControl();
         }
-        else if(interacting && Input.GetMouseButtonDown(0) && isControlled)
+        else if(!canSwitch && !interacting && Input.GetMouseButtonDown(1) && isControlled)
         {
             ReleaseControl();
+            Debug.Log("Release" + gameObject.name);
         }
-        
+
+
+        if (canSwitch && Input.GetMouseButtonDown(1) && isControlled)
+        {
+           
+            SwitchControl();
+            Debug.Log("Switch" + gameObject.name);
+        }
+
         if (isControlled)
         {
             if (!isDashing)
@@ -73,26 +83,50 @@ public class NPCPatrol : MonoBehaviour
 
     void TakeControl()
     {
-        isControlled = true;
-        enemyHealth.killing = true;
-        enemyHealth.healthSliderMain.SetActive(true);
-        agent.enabled = false; // Disable NavMeshAgent
-        player.transform.SetParent(transform);
-        player.transform.localPosition = Vector3.zero;
-        player.SetActive(false); // Hide player
+        if (!player.GetComponent<PlayerController>().controlingLife)
+        {
+            isControlled = true;
+            enemyHealth.killing = true;
+            enemyHealth.healthSliderMain.SetActive(true);
+            agent.enabled = false; // Disable NavMeshAgent
+            player.GetComponent<PlayerController>().controlingLife = true;
+            player.transform.SetParent(transform);
+            player.transform.localPosition = Vector3.zero;
+            player.SetActive(false); // Hide player
+            canSwitch = false;
+        }
+
+
+    }
+    void SwitchControl()
+    {
+             ReleaseControl();
+            temp.GetComponent<NPCPatrol>().TakeControl();
+            
+        
+
+
     }
 
     void ReleaseControl()
     {
-        isControlled = false;
-        enemyHealth.killing = false;
-        enemyHealth.healthSliderMain.SetActive(false);
-        player.transform.SetParent(null);
-        player.SetActive(true); // Show player again
-        agent.enabled = true; // Re-enable NavMeshAgent
+        if (player.GetComponent<PlayerController>().controlingLife)
+        {
+            isControlled = false; 
+            enemyHealth.killing = false;
+            enemyHealth.healthSliderMain.SetActive(false);
+            player.transform.SetParent(null);
+            player.GetComponent<PlayerController>().controlingLife = false;
+            player.SetActive(true); // Show player again
+            agent.enabled = true; // Re-enable NavMeshAgent
+            player.GetComponent<PlayerHealth>().health = 100f;
+            player.GetComponent<SphereCollider>().isTrigger = true;
+            LeanTween.delayedCall(1f, () => { player.GetComponent<SphereCollider>().isTrigger = false; });
+        }
+
     }
 
-  
+
 
     //PlayerController
     public float moveSpeed = 5f;
@@ -111,11 +145,12 @@ public class NPCPatrol : MonoBehaviour
 
 
 
-   
+
     void FixedUpdate()
     {
         if (isControlled)
         {
+            interacting = false; 
             if (isDashing)
             {
                 return; // Do nothing while dashing
@@ -130,7 +165,7 @@ public class NPCPatrol : MonoBehaviour
                 rb.velocity = new Vector3(0, rb.velocity.y, 0); // Stop drifting
             }
         }
-        
+
     }
 
     void HandleMovement()
@@ -151,6 +186,7 @@ public class NPCPatrol : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
         {
             isDashing = true;
+            sphereCollider.isTrigger = true;
             dashTime = Time.time + dashDuration;
             lastDashTime = Time.time;
             rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
@@ -160,30 +196,80 @@ public class NPCPatrol : MonoBehaviour
         {
             if (Time.time >= dashTime)
             {
+                sphereCollider.isTrigger = false;
                 isDashing = false;
             }
         }
     }
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(startPosition == Vector3.zero ? transform.position : startPosition, roamRadius);
     }
     public EnemyHealth enemyHealth;
-    private void OnTriggerStay(Collider other)
+    public SphereCollider sphereCollider;
+    public GameObject temp;
+    private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player"))
+        if (other.CompareTag("Enemy"))
         {
-            interacting = true;           
-            outline.enabled = true;
+
+            if (isDashing)
+            {
+                other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(true);
+                other.GetComponent<EnemyHealth>().DealDamage(10f);
+                LeanTween.delayedCall(5f, () => { other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(false); });
+                Debug.Log("DashDamage");
+            }
+
         }
     }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            interacting = true;
+            outline.enabled = true;
+
+        }
+        if (other.CompareTag("Enemy") && isControlled)
+        {
+            canSwitch = true;
+            temp = other.gameObject;
+            other.GetComponent<Outlinable>().enabled = true;
+
+        }
+        if (other.CompareTag("Enemy") && !isControlled)
+        {
+            interacting = true;
+         
+            //other.GetComponent<Outlinable>().enabled = false;
+
+        }
+    }
+
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             interacting = false;
             outline.enabled = false;
+            
+        }
+        if (other.CompareTag("Enemy") && isControlled)
+        {
+          
+            canSwitch  = false;
+            temp = null;
+            other.GetComponent<Outlinable>().enabled = false;
+
+        }
+        if (other.CompareTag("Enemy") && !isControlled)
+        {
+            interacting = false;
+           
+            //other.GetComponent<Outlinable>().enabled = false;
 
         }
     }

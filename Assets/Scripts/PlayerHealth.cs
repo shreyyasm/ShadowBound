@@ -10,6 +10,7 @@ public class PlayerHealth : MonoBehaviour
     public float healthModifer = 1f;
     public float damageMultiplier = 1f;
     public bool damaging;
+    public bool consuming;
     public Slider healthSlider;
     // Start is called before the first frame update
     void Start()
@@ -32,6 +33,7 @@ public class PlayerHealth : MonoBehaviour
             health += Time.deltaTime * healthModifer;
             healthSlider.value = health;
         }
+      
     }
     private void OnTriggerStay(Collider other)
     {
