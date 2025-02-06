@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
+    public List<PlayerData> playerStatsData;
+    public PlayerStats playerStats;
     public float moveSpeed = 5f;
     public float dashSpeed = 15f;
     public float dashDuration = 0.2f;
@@ -16,17 +19,46 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 isoForward = new Vector3(1, 0, 1).normalized;
     private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
+    public PlayerHealth playerHealth;
 
+    [System.Serializable]
+    public class PlayerData
+    {
+        public string PlayerLevel;
+        public PlayerStats stats;
+    }
+ 
+    private void Awake()
+    {
+        LoadplayerData();
+    }
     void Start()
     {
+        //PlayerPrefs.SetString("PlayerStats", "Level 1");
+        //playerLevel = PlayerPrefs.GetString("PlayerStats");
         Cursor.visible = false;
         rb = GetComponent<Rigidbody>();
         rb.drag = 5f;
         rb.freezeRotation = true; // Prevent rotation due to physics
-    }
 
+    }
+    public void LoadplayerData()
+    {
+        foreach (PlayerData i in playerStatsData)
+        {
+            if (i.PlayerLevel == PlayerPrefs.GetString("PlayerStats"))
+            {
+                playerStats = i.stats;
+                moveSpeed = i.stats.MoveSpeed;
+                dashSpeed = i.stats.DashSpeed;
+                playerHealth.maxHealth = i.stats.MaxHealth;
+                playerHealth.healthModifer = i.stats.HealthModifer;
+            }
+        }
+    } 
     void Update()
     {
+        
         if (!isDashing)
         {
             HandleMovement();

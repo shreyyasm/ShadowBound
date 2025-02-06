@@ -74,6 +74,8 @@ public class NPCPatrol : MonoBehaviour
     void TakeControl()
     {
         isControlled = true;
+        enemyHealth.killing = true;
+        enemyHealth.healthSliderMain.SetActive(true);
         agent.enabled = false; // Disable NavMeshAgent
         player.transform.SetParent(transform);
         player.transform.localPosition = Vector3.zero;
@@ -83,6 +85,8 @@ public class NPCPatrol : MonoBehaviour
     void ReleaseControl()
     {
         isControlled = false;
+        enemyHealth.killing = false;
+        enemyHealth.healthSliderMain.SetActive(false);
         player.transform.SetParent(null);
         player.SetActive(true); // Show player again
         agent.enabled = true; // Re-enable NavMeshAgent
@@ -165,12 +169,12 @@ public class NPCPatrol : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(startPosition == Vector3.zero ? transform.position : startPosition, roamRadius);
     }
-
+    public EnemyHealth enemyHealth;
     private void OnTriggerStay(Collider other)
     {
         if(other.CompareTag("Player"))
         {
-            interacting = true;
+            interacting = true;           
             outline.enabled = true;
         }
     }
