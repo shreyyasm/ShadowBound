@@ -5,12 +5,15 @@ using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
+    [Header("HealthStats")]
     public float health = 100;
     public float maxHealth = 100;
     public float healthModifer = 1f;
     public float damageMultiplier = 1f;
     public bool damaging;
     public bool consuming;
+
+    [Header("HealthUI")]
     public Slider healthSlider;
     // Start is called before the first frame update
     void Start()

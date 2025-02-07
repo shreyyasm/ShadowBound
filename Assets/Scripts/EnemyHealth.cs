@@ -5,11 +5,13 @@ using UnityEngine.UI;
 
 public class EnemyHealth : MonoBehaviour
 {
+    [Header("HealthStats")]
     public float health = 100;
     public float maxHealth = 100;
     public float damageMultiplier = 1f;
     public bool killing;
-    public Slider healthSlider;
+
+    [Header("HealthUI")]
     public GameObject healthSliderMain;
 
     private Camera cam;

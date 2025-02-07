@@ -1,3 +1,4 @@
+using EPOOutline;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,10 +8,19 @@ public class PlayerController : MonoBehaviour
 {
     public List<PlayerData> playerStatsData;
     public PlayerStats playerStats;
+
+    [Header("MovementStats")]
     public float moveSpeed = 5f;
     public float dashSpeed = 15f;
     public float dashDuration = 0.2f;
     public float dashCooldown = 1f;
+
+    [Header("Interaction")]
+    public bool controlingLife;
+
+    [Header("Reference")]
+    public PlayerHealth playerHealth;
+    public SphereCollider sphereCollider;
 
     private Vector3 moveDirection;
     private Rigidbody rb;
@@ -20,11 +30,10 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 isoForward = new Vector3(1, 0, 1).normalized;
     private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
-    public PlayerHealth playerHealth;
+    
+    
 
-    public bool controlingLife;
-
-    public SphereCollider sphereCollider;
+    
 
     [System.Serializable]
     public class PlayerData
@@ -121,7 +130,49 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-   
 
-    
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            other.GetComponent<NPCController>().interacting = true;
+            other.GetComponent<NPCController>().outline.enabled = true;
+
+        }
+        if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
+        {
+            other.GetComponent<NPCController>().canSwitch = true;
+            other.GetComponent<NPCController>().temp = other.gameObject;
+            other.GetComponent<Outlinable>().enabled = true;
+
+        }
+        if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled)
+        {
+            other.GetComponent<NPCController>().interacting = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            other.GetComponent<NPCController>().interacting = false;
+            other.GetComponent<NPCController>().outline.enabled = false;
+
+        }
+        if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
+        {
+
+            other.GetComponent<NPCController>().canSwitch = false;
+            other.GetComponent<NPCController>().temp = null;
+            other.GetComponent<Outlinable>().enabled = false;
+
+        }
+        if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled)
+        {
+            other.GetComponent<NPCController>().interacting = false;
+        }
+    }
+
+
 }

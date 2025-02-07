@@ -2,21 +2,52 @@ using EPOOutline;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class NPCPatrol : MonoBehaviour
+public class NPCController : MonoBehaviour
 {
+    public string Level;
+    public EnemyStats EnemyStats;
+
+    [Header("NPC MovementStats")]
+    public float NPCSpeed= 2f;
     public float roamRadius = 10f;
     public float roamDelay = 2f;
-    public float interactionRange = 2f;
     private NavMeshAgent agent;
     private float nextMoveTime;
     private Vector3 startPosition;
+
+    [HideInInspector]
+    public Outlinable outline;
+    [HideInInspector]
+    public GameObject temp;
+
+
+    [Header("ConsumeStats")]
+    public float moveSpeed = 5f;
+    public float dashSpeed = 15f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
     public bool isControlled = false;
-    private GameObject player;
-    private PlayerController playerController;
     public bool interacting;
     public bool canSwitch;
 
-    public Outlinable outline;
+    [Header("Reference")]
+    public EnemyHealth enemyHealth;
+    public SphereCollider sphereCollider;
+
+    //Hidden
+    private Vector3 moveDirection;
+    private Rigidbody rb;
+    private bool isDashing = false;
+    private float dashTime;
+    private float lastDashTime;
+    private Vector3 isoForward = new Vector3(1, 0, 1).normalized;
+    private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
+    private GameObject player;
+    private PlayerController playerController;
+
+    
+  
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -101,10 +132,7 @@ public class NPCPatrol : MonoBehaviour
     void SwitchControl()
     {
              ReleaseControl();
-            temp.GetComponent<NPCPatrol>().TakeControl();
-            
-        
-
+            temp.GetComponent<NPCController>().TakeControl();
 
     }
 
@@ -125,26 +153,6 @@ public class NPCPatrol : MonoBehaviour
         }
 
     }
-
-
-
-    //PlayerController
-    public float moveSpeed = 5f;
-    public float dashSpeed = 15f;
-    public float dashDuration = 0.2f;
-    public float dashCooldown = 1f;
-
-    private Vector3 moveDirection;
-    private Rigidbody rb;
-    private bool isDashing = false;
-    private float dashTime;
-    private float lastDashTime;
-
-    private Vector3 isoForward = new Vector3(1, 0, 1).normalized;
-    private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
-
-
-
 
     void FixedUpdate()
     {
@@ -207,12 +215,10 @@ public class NPCPatrol : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(startPosition == Vector3.zero ? transform.position : startPosition, roamRadius);
     }
-    public EnemyHealth enemyHealth;
-    public SphereCollider sphereCollider;
-    public GameObject temp;
+  
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.gameObject.CompareTag("Enemy"))
         {
 
             if (isDashing)
@@ -227,12 +233,7 @@ public class NPCPatrol : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            interacting = true;
-            outline.enabled = true;
-
-        }
+      
         if (other.CompareTag("Enemy") && isControlled)
         {
             canSwitch = true;
@@ -240,23 +241,16 @@ public class NPCPatrol : MonoBehaviour
             other.GetComponent<Outlinable>().enabled = true;
 
         }
+        
         if (other.CompareTag("Enemy") && !isControlled)
         {
             interacting = true;
-         
-            //other.GetComponent<Outlinable>().enabled = false;
-
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            interacting = false;
-            outline.enabled = false;
-            
-        }
+      
         if (other.CompareTag("Enemy") && isControlled)
         {
           
@@ -268,9 +262,6 @@ public class NPCPatrol : MonoBehaviour
         if (other.CompareTag("Enemy") && !isControlled)
         {
             interacting = false;
-           
-            //other.GetComponent<Outlinable>().enabled = false;
-
         }
     }
 }

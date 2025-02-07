@@ -6,8 +6,12 @@ using UnityEngine;
 public class PlayerStats :ScriptableObject
 {
     public string Level;
+
+    [Header("MovementStats")]
     public int MoveSpeed;
     public int DashSpeed;
+
+    [Header("HealthStats")]
     public float HealthModifer;
     public float MaxHealth;
 }
