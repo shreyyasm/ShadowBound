@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
 {
     public List<PlayerData> playerStatsData;
     public PlayerStats playerStats;
+    public string Level;
+    public int Levelindex;
 
     [Header("MovementStats")]
     public float moveSpeed = 5f;
@@ -21,6 +23,8 @@ public class PlayerController : MonoBehaviour
     [Header("Reference")]
     public PlayerHealth playerHealth;
     public SphereCollider sphereCollider;
+    public Animator animator;
+    public SpriteRenderer spriteRenderer;
 
     private Vector3 moveDirection;
     private Rigidbody rb;
@@ -30,11 +34,8 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 isoForward = new Vector3(1, 0, 1).normalized;
     private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
+   
     
-    
-
-    
-
     [System.Serializable]
     public class PlayerData
     {
@@ -50,7 +51,7 @@ public class PlayerController : MonoBehaviour
     {
         //PlayerPrefs.SetString("PlayerStats", "Level 1");
         //playerLevel = PlayerPrefs.GetString("PlayerStats");
-        Cursor.visible = false;
+       
         rb = GetComponent<Rigidbody>();
         rb.drag = 5f;
         rb.freezeRotation = true; // Prevent rotation due to physics
@@ -62,6 +63,8 @@ public class PlayerController : MonoBehaviour
         {
             if (i.PlayerLevel == PlayerPrefs.GetString("PlayerStats"))
             {
+                Level = i.stats.Level;
+                Levelindex = i.stats.LevelIndex;
                 playerStats = i.stats;
                 moveSpeed = i.stats.MoveSpeed;
                 dashSpeed = i.stats.DashSpeed;
@@ -96,17 +99,30 @@ public class PlayerController : MonoBehaviour
             rb.velocity = new Vector3(0, rb.velocity.y, 0); // Stop drifting
         }
     }
-
+    //public float moveDir;
     void HandleMovement()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
         moveDirection = (isoRight * horizontal + isoForward * vertical).normalized;
-
+        //moveDir = moveDirection.x;
         if (moveDirection.magnitude >= 0.1f)
         {
             rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
+            if(moveDirection.x >=-0.1)
+            {
+                spriteRenderer.flipX = true;
+            }
+            else
+                spriteRenderer.flipX = false;
+
+
+            animator.SetBool("IsWalking", true);
+        }
+        else
+        {
+            animator.SetBool("IsWalking", false);
         }
     }
 
@@ -114,6 +130,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
         {
+            animator.SetBool("IsDashing", true);
             isDashing = true;
             sphereCollider.isTrigger = true;
             dashTime = Time.time + dashDuration;
@@ -126,6 +143,7 @@ public class PlayerController : MonoBehaviour
             if (Time.time >= dashTime)
             {
                 isDashing = false;
+                animator.SetBool("IsDashing", false);
                 sphereCollider.isTrigger = false;
             }
         }

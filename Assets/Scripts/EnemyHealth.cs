@@ -21,6 +21,7 @@ public class EnemyHealth : MonoBehaviour
     {
         cam = Camera.main;
         //healthSlider.maxValue = maxHealth;
+        health = maxHealth;
         UpdateHealthBar(health, maxHealth);
     }
 

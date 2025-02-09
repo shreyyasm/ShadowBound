@@ -1,10 +1,12 @@
 using EPOOutline;
 using UnityEngine;
 using UnityEngine.AI;
+using static PlayerController;
 
 public class NPCController : MonoBehaviour
 {
     public string Level;
+    public int LevelIndex;
     public EnemyStats EnemyStats;
 
     [Header("NPC MovementStats")]
@@ -30,6 +32,13 @@ public class NPCController : MonoBehaviour
     public bool interacting;
     public bool canSwitch;
 
+    [Header("AttackStats")]
+    public float attackDamage = 10f;
+    public float attackCooldown = 1.5f;
+    private float lastAttackTime;
+    private bool isAttacking;
+    private GameObject targetEnemy;
+
     [Header("Reference")]
     public EnemyHealth enemyHealth;
     public SphereCollider sphereCollider;
@@ -45,9 +54,24 @@ public class NPCController : MonoBehaviour
     private GameObject player;
     private PlayerController playerController;
 
-    
-  
+    private void Awake()
+    {
+        LoadplayerData();
+    }
 
+    public void LoadplayerData()
+    {
+        Level = EnemyStats.Level;
+        LevelIndex = EnemyStats.LevelIndex;
+        NPCSpeed = EnemyStats.NPCSpeed;
+        roamRadius = EnemyStats.RoamRadius;
+        roamDelay = EnemyStats.RoamDelay;
+        enemyHealth.maxHealth = EnemyStats.MaxHealth;
+        enemyHealth.damageMultiplier = EnemyStats.HealthModifer;
+        moveSpeed = EnemyStats.MoveSpeed;
+        dashSpeed = EnemyStats.DashSpeed;
+          
+    }
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -97,6 +121,14 @@ public class NPCController : MonoBehaviour
             }
 
             HandleDash();
+            HandleAttack();
+        }
+        else
+        {
+            if (isAttacking && Time.time >= lastAttackTime + attackCooldown)
+            {
+                AttackTarget();
+            }
         }
 
     }
@@ -114,25 +146,31 @@ public class NPCController : MonoBehaviour
 
     void TakeControl()
     {
-        if (!player.GetComponent<PlayerController>().controlingLife)
+        if(playerController.Levelindex >= LevelIndex)
         {
-            isControlled = true;
-            enemyHealth.killing = true;
-            enemyHealth.healthSliderMain.SetActive(true);
-            agent.enabled = false; // Disable NavMeshAgent
-            player.GetComponent<PlayerController>().controlingLife = true;
-            player.transform.SetParent(transform);
-            player.transform.localPosition = Vector3.zero;
-            player.SetActive(false); // Hide player
-            canSwitch = false;
+            if (!player.GetComponent<PlayerController>().controlingLife)
+            {
+                isControlled = true;
+                enemyHealth.killing = true;
+                enemyHealth.healthSliderMain.SetActive(true);
+                agent.enabled = false; // Disable NavMeshAgent
+                player.GetComponent<PlayerController>().controlingLife = true;
+                player.transform.SetParent(transform);
+                player.transform.localPosition = Vector3.zero;
+                player.SetActive(false); // Hide player
+                canSwitch = false;
+            }
+
         }
-
-
     }
     void SwitchControl()
     {
-             ReleaseControl();
+        if (playerController.Levelindex >= LevelIndex)
+        {
+            ReleaseControl();
             temp.GetComponent<NPCController>().TakeControl();
+        }
+           
 
     }
 
@@ -228,7 +266,31 @@ public class NPCController : MonoBehaviour
                 LeanTween.delayedCall(5f, () => { other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(false); });
                 Debug.Log("DashDamage");
             }
+            else if (!isControlled)
+            {
+                isAttacking = true;
+                targetEnemy = other.gameObject;
+            }
 
+        }
+    }
+    void HandleAttack()
+    {
+        if (Input.GetMouseButtonDown(0) && Time.time >= lastAttackTime + attackCooldown && interacting)
+        {
+            lastAttackTime = Time.time;
+            Debug.Log("Player Attacking");
+
+            // Implement attack logic here
+        }
+    }
+
+    void AttackTarget()
+    {
+        if (targetEnemy != null)
+        {
+            targetEnemy.GetComponent<EnemyHealth>().DealDamage(attackDamage);
+            lastAttackTime = Time.time;
         }
     }
     private void OnTriggerStay(Collider other)

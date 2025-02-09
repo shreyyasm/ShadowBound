@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Level 3
   m_EditorClassIdentifier: 
   Level: Level 3
+  LevelIndex: 3
   MoveSpeed: 14
   DashSpeed: 40
   HealthModifer: 9

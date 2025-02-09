@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Level 1
   m_EditorClassIdentifier: 
   Level: Level 1
+  LevelIndex: 1
   NPCSpeed: 2
   RoamRadius: 10
   RoamDelay: 6

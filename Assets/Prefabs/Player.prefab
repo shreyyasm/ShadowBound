@@ -68,8 +68,8 @@ MonoBehaviour:
   dashSpeed: 0
   dashDuration: 0.4
   dashCooldown: 0.6
-  playerHealth: {fileID: 4985568030189456047}
   controlingLife: 0
+  playerHealth: {fileID: 4985568030189456047}
   sphereCollider: {fileID: 1367598356116135026}
 --- !u!114 &4985568030189456047
 MonoBehaviour:

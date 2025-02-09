@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerStats :ScriptableObject
 {
     public string Level;
+    public int LevelIndex;
 
     [Header("MovementStats")]
     public int MoveSpeed;

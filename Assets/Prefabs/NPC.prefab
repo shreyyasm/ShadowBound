@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 721304654272385003}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: Main
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -380,7 +380,7 @@ GameObject:
   - component: {fileID: 3686581202472290957}
   - component: {fileID: 3777847655238370871}
   - component: {fileID: 8292592724334170058}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: NPC
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -417,20 +417,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474e908a75c2ac344b029c42fa960893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roamRadius: 10
-  roamDelay: 6
-  interactionRange: 2
+  Level: Level 1
+  EnemyStats: {fileID: 11400000, guid: f23db31a8fc9dd940b109b23c6d8e893, type: 2}
+  NPCSpeed: 0
+  roamRadius: 0
+  roamDelay: 0
+  outline: {fileID: 0}
+  temp: {fileID: 0}
+  moveSpeed: 0
+  dashSpeed: 0
+  dashDuration: 0.4
+  dashCooldown: 0.6
   isControlled: 0
   interacting: 0
   canSwitch: 0
-  outline: {fileID: 0}
-  moveSpeed: 10
-  dashSpeed: 35
-  dashDuration: 0.4
-  dashCooldown: 0.6
   enemyHealth: {fileID: 393633712474093337}
   sphereCollider: {fileID: 721304654272385003}
-  temp: {fileID: 0}
 --- !u!114 &393633712474093337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -443,11 +445,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f4f6c7ddbdbc5347a05fef0a6fb577a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
-  maxHealth: 100
+  health: 0
+  maxHealth: 0
   damageMultiplier: 5
   killing: 0
-  healthSlider: {fileID: 0}
   healthSliderMain: {fileID: 1534570278214692313}
   healthbarSprite: {fileID: 4064697938399036464}
   reduceSpeed: 0
@@ -667,9 +668,9 @@ SphereCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 1
   m_IsTrigger: 1
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
   m_Radius: 2

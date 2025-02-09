@@ -6,6 +6,7 @@ using UnityEngine;
 public class EnemyStats : ScriptableObject
 {
     public string Level;
+    public int LevelIndex;
 
     [Header("NPC MovementStats")]
     public int NPCSpeed;

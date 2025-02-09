@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Level 2
   m_EditorClassIdentifier: 
   Level: Level 2
+  LevelIndex: 2
   MoveSpeed: 12
   DashSpeed: 35
-  DashDamage: 35
   HealthModifer: 7
   MaxHealth: 120
