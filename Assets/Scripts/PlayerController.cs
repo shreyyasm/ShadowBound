@@ -21,7 +21,6 @@ public class PlayerController : MonoBehaviour
     public bool controlingLife;
 
     [Header("Reference")]
-    public PlayerHealth playerHealth;
     public SphereCollider sphereCollider;
     public Animator animator;
     public SpriteRenderer spriteRenderer;
@@ -68,8 +67,6 @@ public class PlayerController : MonoBehaviour
                 playerStats = i.stats;
                 moveSpeed = i.stats.MoveSpeed;
                 dashSpeed = i.stats.DashSpeed;
-                playerHealth.maxHealth = i.stats.MaxHealth;
-                playerHealth.healthModifer = i.stats.HealthModifer;
             }
         }
     } 
@@ -172,6 +169,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        
         if (other.CompareTag("Enemy"))
         {
             other.GetComponent<NPCController>().interacting = false;
@@ -192,5 +190,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            
+            other.gameObject.GetComponent<NPCController>().Caught = true;
+            other.gameObject.GetComponent<NPCController>().ChangeSpeed();
+        }
+    }
 }

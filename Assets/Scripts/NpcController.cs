@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using static PlayerController;
 
 public class NPCController : MonoBehaviour
@@ -18,12 +19,6 @@ public class NPCController : MonoBehaviour
     private NavMeshAgent agent;
     private float nextMoveTime;
     private Vector3 startPosition;
-
-    [HideInInspector]
-    public Outlinable outline;
-    [HideInInspector]
-    public GameObject temp;
-
 
     [Header("ConsumeStats")]
     public float moveSpeed = 5f;
@@ -61,8 +56,12 @@ public class NPCController : MonoBehaviour
 
 
     [Header("Reference")]
-    public EnemyHealth enemyHealth;
     public SphereCollider sphereCollider;
+
+    [HideInInspector]
+    public Outlinable outline;
+    [HideInInspector]
+    public GameObject temp;
 
     //Hidden
     private Vector3 moveDirection;
@@ -74,6 +73,7 @@ public class NPCController : MonoBehaviour
     private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
     private GameObject player;
     private PlayerController playerController;
+    private Camera cam;
 
     private void Awake()
     {
@@ -111,7 +111,9 @@ public class NPCController : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         outline = GetComponent<Outlinable>();
-      
+        cam = Camera.main;
+        ControlTimeSlider.maxValue  = controlTime;
+        controlTimer = controlTime;
         nextMoveTime = Time.time + roamDelay;
         player = GameObject.FindGameObjectWithTag("Player");
         playerController = player.GetComponent<PlayerController>();
@@ -155,9 +157,11 @@ public class NPCController : MonoBehaviour
        
         if (isControlled)
         {
-            controlTimer += Time.deltaTime;
-            if (controlTimer >= controlTime)
+            controlTimer -= Time.deltaTime;
+            ControlTimeSlider.value = controlTimer;
+            if (controlTimer <= 0)
             {
+              
                 Alert = true;
                 ReleaseControl();
                 StartCoroutine(StunNPC());
@@ -190,6 +194,8 @@ public class NPCController : MonoBehaviour
 
         if(Caught)
             agent.SetDestination(player.transform.position);
+
+        SliderMain.transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
     }
 
     
@@ -201,14 +207,14 @@ public class NPCController : MonoBehaviour
             if (!player.GetComponent<PlayerController>().controlingLife)
             {
                 isControlled = true;
-                enemyHealth.killing = true;
-                enemyHealth.healthSliderMain.SetActive(true);
+                Consume(true);               
                 agent.enabled = false; // Disable NavMeshAgent
                 player.GetComponent<PlayerController>().controlingLife = true;
                 player.transform.SetParent(transform);
                 player.transform.localPosition = Vector3.zero;
                 player.SetActive(false); // Hide player
                 canSwitch = false;
+                controlTimer = controlTime;
             }
 
         }
@@ -223,25 +229,30 @@ public class NPCController : MonoBehaviour
            
 
     }
-    private bool Alert;
-    void ReleaseControl()
+    public bool Alert;
+    public void ReleaseControl()
     {
         if (player.GetComponent<PlayerController>().controlingLife)
         {
-            isControlled = false; 
-            enemyHealth.killing = false;
-            enemyHealth.healthSliderMain.SetActive(false);
+            isControlled = false;
+            Consume(false);
             player.transform.SetParent(null);
             player.GetComponent<PlayerController>().controlingLife = false;
             player.SetActive(true); // Show player again
             agent.enabled = true; // Re-enable NavMeshAgent
-            player.GetComponent<PlayerHealth>().health = 100f;
             player.GetComponent<SphereCollider>().isTrigger = true;
             LeanTween.delayedCall(1f, () => { player.GetComponent<SphereCollider>().isTrigger = false; });
             if(!Alert)
                 StartCoroutine(ShortStun());
         }
 
+    }
+    [Header("HealthUI")]
+    public GameObject SliderMain;
+    public Slider ControlTimeSlider;
+    public void Consume(bool value)
+    {      
+        SliderMain.SetActive(value);
     }
 
     void FixedUpdate()
@@ -311,6 +322,16 @@ public class NPCController : MonoBehaviour
         agent.speed = chaseSpeed;
         agent.SetDestination(player.transform.position);
     }
+    public void PlayerFound()
+    {
+        Caught = true;      
+        agent.speed = chaseSpeed;
+        agent.SetDestination(player.transform.position);
+    }
+    public void StunMethod()
+    {
+        StartCoroutine(StunNPC());
+    }
     private IEnumerator StunNPC()
     {
         isStunned = true;
@@ -327,7 +348,7 @@ public class NPCController : MonoBehaviour
         agent.isStopped = false;
         isStunned = false;
         Alert = false;
-        controlTimer = 0;
+        controlTimer = controlTime;
         MoveToNextPatrol();
     }
     private IEnumerator SearchForPlayer()
@@ -351,9 +372,13 @@ public class NPCController : MonoBehaviour
         agent.speed = normalSpeed;
         isSearching = false;
         isStunned = false;
-        controlTimer = 0f;
+        controlTimer = controlTime;
 
 
+    }
+    public void ChangeSpeed()
+    {
+        agent.speed = chaseSpeed;
     }
     void MoveToRandomPoint()
     {
@@ -393,23 +418,6 @@ public class NPCController : MonoBehaviour
         return false;
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-
-            if (isDashing)
-            {
-                other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(true);
-                other.GetComponent<EnemyHealth>().DealDamage(10f);
-                LeanTween.delayedCall(5f, () => { other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(false); });
-                Debug.Log("DashDamage");
-            }
-       
-
-        }
-    }
-
     private void OnTriggerStay(Collider other)
     {
 
@@ -424,7 +432,9 @@ public class NPCController : MonoBehaviour
         if (other.CompareTag("Enemy") && !isControlled)
         {
             interacting = true;
+           
         }
+        
     }
 
     private void OnTriggerExit(Collider other)

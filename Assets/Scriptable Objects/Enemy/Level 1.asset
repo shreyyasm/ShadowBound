@@ -23,7 +23,7 @@ MonoBehaviour:
   visionAngle: 55
   chaseSpeed: 10
   normalSpeed: 2
-  alertDelay: 2
+  alertDelay: 1
   controlTime: 5
   stunDuration: 2
   searchTime: 20
