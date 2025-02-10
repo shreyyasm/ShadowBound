@@ -1649,6 +1649,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2801835035232639297, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      propertyPath: m_Intensity
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 2801835035232639297, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      propertyPath: m_SpotAngle
+      value: 114.85506
+      objectReference: {fileID: 0}
+    - target: {fileID: 2801835035232639297, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 1
       objectReference: {fileID: 0}
@@ -1738,15 +1746,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       propertyPath: chaseSpeed
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       propertyPath: searchTime
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      propertyPath: normalSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       propertyPath: visionAngle
-      value: 46.5
+      value: 55
       objectReference: {fileID: 0}
     - target: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       propertyPath: visionRange

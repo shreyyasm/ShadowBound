@@ -17,7 +17,13 @@ MonoBehaviour:
   NPCSpeed: 2
   RoamRadius: 10
   RoamDelay: 2
-  HealthModifer: 5
-  MaxHealth: 100
-  MoveSpeed: 10
-  DashSpeed: 35
+  MoveSpeed: 12
+  DashSpeed: 50
+  visionRange: 6.5
+  visionAngle: 55
+  chaseSpeed: 10
+  normalSpeed: 2
+  alertDelay: 2
+  controlTime: 5
+  stunDuration: 2
+  searchTime: 20

@@ -34,14 +34,7 @@ public class NPCController : MonoBehaviour
     public bool interacting;
     public bool canSwitch;
 
-    [Header("AttackStats")]
-    public float attackDamage = 10f;
-    public float attackCooldown = 1.5f;
-    private float lastAttackTime;
-    private bool isAttacking;
-    private GameObject targetEnemy;
-
-
+    [Header("PatrolStats")]
     public Transform[] patrolPoints; // List of patrol points
     private int currentPatrolIndex = 0;
     private bool isChasing = false;
@@ -58,7 +51,6 @@ public class NPCController : MonoBehaviour
     public float chaseSpeed = 4f;
     public float normalSpeed = 2f;
     public float alertDelay = 2f;
-    public float lostDelay = 2f;
 
     [Header("Control & Stun")]
     public float controlTime = 5f; // Time before NPC gets stunned if controlled
@@ -90,13 +82,27 @@ public class NPCController : MonoBehaviour
 
     public void LoadplayerData()
     {
+        //Level
         Level = EnemyStats.Level;
         LevelIndex = EnemyStats.LevelIndex;
+
+        //NPCStats
         NPCSpeed = EnemyStats.NPCSpeed;
         roamRadius = EnemyStats.RoamRadius;
         roamDelay = EnemyStats.RoamDelay;
-        enemyHealth.maxHealth = EnemyStats.MaxHealth;
-        enemyHealth.damageMultiplier = EnemyStats.HealthModifer;
+
+        visionRange = EnemyStats.visionRange;
+        visionAngle = EnemyStats.visionAngle;
+
+        chaseSpeed = EnemyStats.chaseSpeed;
+        normalSpeed = EnemyStats.normalSpeed;
+        alertDelay = EnemyStats.alertDelay;
+
+        controlTime = EnemyStats.controlTime; 
+        stunDuration = EnemyStats.stunDuration;
+        searchTime = EnemyStats.searchTime;
+
+        //ControlStats
         moveSpeed = EnemyStats.MoveSpeed;
         dashSpeed = EnemyStats.DashSpeed;
           
@@ -113,13 +119,9 @@ public class NPCController : MonoBehaviour
         rb.drag = 5f;
         rb.freezeRotation = true; // Prevent rotation due to physics
 
-
-       
         agent.speed = normalSpeed;
         MoveToNextPatrol();
     }
-    public float test;
-
     void Update()
     {
        //Control
@@ -149,7 +151,6 @@ public class NPCController : MonoBehaviour
             }
 
             HandleDash();
-            HandleAttack();
         }
        
         if (isControlled)
@@ -298,85 +299,7 @@ public class NPCController : MonoBehaviour
             }
         }
     }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(startPosition == Vector3.zero ? transform.position : startPosition, roamRadius);
-    }
-  
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-
-            if (isDashing)
-            {
-                other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(true);
-                other.GetComponent<EnemyHealth>().DealDamage(10f);
-                LeanTween.delayedCall(5f, () => { other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(false); });
-                Debug.Log("DashDamage");
-            }
-            else if (!isControlled)
-            {
-                isAttacking = true;
-                targetEnemy = other.gameObject;
-            }
-
-        }
-    }
-    void HandleAttack()
-    {
-        if (Input.GetMouseButtonDown(0) && Time.time >= lastAttackTime + attackCooldown && interacting)
-        {
-            lastAttackTime = Time.time;
-            Debug.Log("Player Attacking");
-
-            // Implement attack logic here
-        }
-    }
-
-    void AttackTarget()
-    {
-        if (targetEnemy != null)
-        {
-            targetEnemy.GetComponent<EnemyHealth>().DealDamage(attackDamage);
-            lastAttackTime = Time.time;
-        }
-    }
-    private void OnTriggerStay(Collider other)
-    {
-      
-        if (other.CompareTag("Enemy") && isControlled)
-        {
-            canSwitch = true;
-            temp = other.gameObject;
-            other.GetComponent<Outlinable>().enabled = true;
-
-        }
-        
-        if (other.CompareTag("Enemy") && !isControlled)
-        {
-            interacting = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-      
-        if (other.CompareTag("Enemy") && isControlled)
-        {
-          
-            canSwitch  = false;
-            temp = null;
-            other.GetComponent<Outlinable>().enabled = false;
-
-        }
-        if (other.CompareTag("Enemy") && !isControlled)
-        {
-            interacting = false;
-        }
-    }
+    
     private IEnumerator AlertAndChase()
     {
         isChasing = true;
@@ -388,16 +311,6 @@ public class NPCController : MonoBehaviour
         agent.speed = chaseSpeed;
         agent.SetDestination(player.transform.position);
     }
-
-
-    private IEnumerator LostPlayer()
-    {
-        isChasing = false;
-        yield return new WaitForSeconds(lostDelay);
-        agent.speed = normalSpeed;
-        MoveToNextPatrol();
-    }
-
     private IEnumerator StunNPC()
     {
         isStunned = true;
@@ -479,6 +392,63 @@ public class NPCController : MonoBehaviour
         }
         return false;
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+
+            if (isDashing)
+            {
+                other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(true);
+                other.GetComponent<EnemyHealth>().DealDamage(10f);
+                LeanTween.delayedCall(5f, () => { other.GetComponent<EnemyHealth>().healthSliderMain.SetActive(false); });
+                Debug.Log("DashDamage");
+            }
+       
+
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+
+        if (other.CompareTag("Enemy") && isControlled)
+        {
+            canSwitch = true;
+            temp = other.gameObject;
+            other.GetComponent<Outlinable>().enabled = true;
+
+        }
+
+        if (other.CompareTag("Enemy") && !isControlled)
+        {
+            interacting = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+
+        if (other.CompareTag("Enemy") && isControlled)
+        {
+
+            canSwitch = false;
+            temp = null;
+            other.GetComponent<Outlinable>().enabled = false;
+
+        }
+        if (other.CompareTag("Enemy") && !isControlled)
+        {
+            interacting = false;
+        }
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(startPosition == Vector3.zero ? transform.position : startPosition, roamRadius);
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (!visionOrigin) return;
