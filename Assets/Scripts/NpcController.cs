@@ -1,4 +1,6 @@
 using EPOOutline;
+using System.Collections;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
 using static PlayerController;
@@ -39,6 +41,33 @@ public class NPCController : MonoBehaviour
     private bool isAttacking;
     private GameObject targetEnemy;
 
+
+    public Transform[] patrolPoints; // List of patrol points
+    private int currentPatrolIndex = 0;
+    private bool isChasing = false;
+    private bool isStunned = false;
+    public bool isSearching = false;
+
+    [Header("Vision Settings")]
+    public float visionRange = 10f;
+    public float visionAngle = 45f;
+    public Transform visionOrigin;
+
+    [Header("Chase Settings")]
+    public bool Caught;
+    public float chaseSpeed = 4f;
+    public float normalSpeed = 2f;
+    public float alertDelay = 2f;
+    public float lostDelay = 2f;
+
+    [Header("Control & Stun")]
+    public float controlTime = 5f; // Time before NPC gets stunned if controlled
+    public float stunDuration = 3f;
+    public float searchTime = 4f;
+    public float controlTimer = 0f;
+    private bool playerInSight;
+
+
     [Header("Reference")]
     public EnemyHealth enemyHealth;
     public SphereCollider sphereCollider;
@@ -76,26 +105,25 @@ public class NPCController : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         outline = GetComponent<Outlinable>();
-        startPosition = transform.position; // Store initial position
+      
         nextMoveTime = Time.time + roamDelay;
         player = GameObject.FindGameObjectWithTag("Player");
         playerController = player.GetComponent<PlayerController>();
         rb = GetComponent<Rigidbody>();
         rb.drag = 5f;
         rb.freezeRotation = true; // Prevent rotation due to physics
+
+
+       
+        agent.speed = normalSpeed;
+        MoveToNextPatrol();
     }
+    public float test;
 
     void Update()
     {
-        if (!isControlled)
-        {
-            if (Time.time >= nextMoveTime && !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
-            {
-                MoveToRandomPoint();
-                nextMoveTime = Time.time + roamDelay;
-            }
-        }
-        if (interacting && Input.GetMouseButtonDown(1) && !isControlled)
+       //Control
+        if (interacting && Input.GetMouseButtonDown(1) && !isControlled && !isStunned)
         {
             TakeControl();
         }
@@ -123,26 +151,47 @@ public class NPCController : MonoBehaviour
             HandleDash();
             HandleAttack();
         }
-        else
+       
+        if (isControlled)
         {
-            if (isAttacking && Time.time >= lastAttackTime + attackCooldown)
+            controlTimer += Time.deltaTime;
+            if (controlTimer >= controlTime)
             {
-                AttackTarget();
+                Alert = true;
+                ReleaseControl();
+                StartCoroutine(StunNPC());
+            }
+            return;
+        }
+
+        //AI
+        if (!isControlled)
+        {
+            if (Time.time >= nextMoveTime && !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance && isSearching && !Caught) 
+            {
+                MoveToRandomPoint();
+                nextMoveTime = Time.time + roamDelay;
             }
         }
-
-    }
-
-    void MoveToRandomPoint()
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * roamRadius;
-        randomDirection += startPosition; // Use fixed start position
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(randomDirection, out hit, roamRadius, NavMesh.AllAreas))
+      
+        if (isStunned || isSearching)
+            return;
+        if (!isChasing && !agent.pathPending && agent.remainingDistance < 0.5f && !Caught)
         {
-            agent.SetDestination(hit.position);
+            MoveToNextPatrol();
         }
+        playerInSight = CheckPlayerInVision();
+
+        if (playerInSight && !isChasing)
+        {
+            StartCoroutine(AlertAndChase());
+        }
+
+        if(Caught)
+            agent.SetDestination(player.transform.position);
     }
+
+    
 
     void TakeControl()
     {
@@ -173,7 +222,7 @@ public class NPCController : MonoBehaviour
            
 
     }
-
+    private bool Alert;
     void ReleaseControl()
     {
         if (player.GetComponent<PlayerController>().controlingLife)
@@ -188,6 +237,8 @@ public class NPCController : MonoBehaviour
             player.GetComponent<PlayerHealth>().health = 100f;
             player.GetComponent<SphereCollider>().isTrigger = true;
             LeanTween.delayedCall(1f, () => { player.GetComponent<SphereCollider>().isTrigger = false; });
+            if(!Alert)
+                StartCoroutine(ShortStun());
         }
 
     }
@@ -325,5 +376,120 @@ public class NPCController : MonoBehaviour
         {
             interacting = false;
         }
+    }
+    private IEnumerator AlertAndChase()
+    {
+        isChasing = true;
+        if(!Caught)
+            agent.isStopped = true;
+        yield return new WaitForSeconds(alertDelay);
+        Caught = true;
+        agent.isStopped = false;
+        agent.speed = chaseSpeed;
+        agent.SetDestination(player.transform.position);
+    }
+
+
+    private IEnumerator LostPlayer()
+    {
+        isChasing = false;
+        yield return new WaitForSeconds(lostDelay);
+        agent.speed = normalSpeed;
+        MoveToNextPatrol();
+    }
+
+    private IEnumerator StunNPC()
+    {
+        isStunned = true;
+        agent.isStopped = true;
+        yield return new WaitForSeconds(stunDuration);
+        agent.isStopped = false;
+        StartCoroutine(SearchForPlayer());
+    }
+    public IEnumerator ShortStun()
+    {
+        isStunned = true;
+        agent.isStopped = true;
+        yield return new WaitForSeconds(stunDuration);
+        agent.isStopped = false;
+        isStunned = false;
+        Alert = false;
+        controlTimer = 0;
+        MoveToNextPatrol();
+    }
+    private IEnumerator SearchForPlayer()
+    {
+        isSearching = true;
+        agent.speed = chaseSpeed;
+        float elapsedTime = 0;
+        startPosition = transform.position; // Store initial position
+        while (elapsedTime < searchTime)
+        {
+            if (CheckPlayerInVision())
+            {
+                //StartCoroutine(AlertAndChase());
+                isSearching = false;
+                yield break;
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        MoveToNextPatrol();
+        agent.speed = normalSpeed;
+        isSearching = false;
+        isStunned = false;
+        controlTimer = 0f;
+
+
+    }
+    void MoveToRandomPoint()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * roamRadius;
+        randomDirection += startPosition; // Use fixed start position
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(randomDirection, out hit, roamRadius, NavMesh.AllAreas))
+        {
+            agent.SetDestination(hit.position);
+        }
+    }
+    private void MoveToNextPatrol()
+    {
+        if (patrolPoints.Length == 0 && !Caught)
+            return;
+       
+        agent.enabled = true;
+        agent.speed = normalSpeed;
+        agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+        currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+    }
+    private bool CheckPlayerInVision()
+    {
+        if (!player) return false;
+
+        Vector3 directionToPlayer = (player.transform.position - visionOrigin.position).normalized;
+        float angleToPlayer = Vector3.Angle(transform.forward, directionToPlayer);
+
+        if (angleToPlayer < visionAngle && Vector3.Distance(transform.position, player.transform.position) < visionRange)
+        {
+            if (Physics.Raycast(visionOrigin.position, directionToPlayer, out RaycastHit hit, visionRange))
+            {
+                if (hit.collider.gameObject == player)
+                    return true;
+            }
+        }
+        return false;
+    }
+    private void OnDrawGizmosSelected()
+    {
+        if (!visionOrigin) return;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, visionRange);
+
+        Vector3 leftLimit = Quaternion.Euler(0, -visionAngle, 0) * transform.forward;
+        Vector3 rightLimit = Quaternion.Euler(0, visionAngle, 0) * transform.forward;
+
+        Gizmos.DrawLine(visionOrigin.position, visionOrigin.position + leftLimit * visionRange);
+        Gizmos.DrawLine(visionOrigin.position, visionOrigin.position + rightLimit * visionRange);
     }
 }

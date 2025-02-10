@@ -16,7 +16,7 @@ MonoBehaviour:
   LevelIndex: 1
   NPCSpeed: 2
   RoamRadius: 10
-  RoamDelay: 6
+  RoamDelay: 2
   HealthModifer: 5
   MaxHealth: 100
   MoveSpeed: 10
