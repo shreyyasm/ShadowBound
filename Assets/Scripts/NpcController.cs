@@ -43,6 +43,7 @@ public class NPCController : MonoBehaviour
 
     [Header("Chase Settings")]
     public bool Caught;
+    public bool Alert;
     public float chaseSpeed = 4f;
     public float normalSpeed = 2f;
     public float alertDelay = 2f;
@@ -57,11 +58,29 @@ public class NPCController : MonoBehaviour
 
     [Header("Reference")]
     public SphereCollider sphereCollider;
+    public GameObject LightRay;
 
     [HideInInspector]
     public Outlinable outline;
     [HideInInspector]
     public GameObject temp;
+
+    [Header("Move Ability")]
+    public Transform grabPoint; // Where the object will be held
+    public float grabRange = 3f; // Distance for raycast detection
+    public LayerMask grabbableLayer; // Define what objects can be grabbed
+    private Rigidbody grabbedObject;
+    private FixedJoint grabJoint;
+    public float grabHeightOffset = 1.5f;
+    public bool MovingObject;
+    
+    [Header("Rotate Ability")]
+    public float rotationSnapAngle = 90f;
+    public bool isRotating = false;
+
+    [Header("HealthUI")]
+    public GameObject SliderMain;
+    public Slider ControlTimeSlider;
 
     //Hidden
     private Vector3 moveDirection;
@@ -126,7 +145,33 @@ public class NPCController : MonoBehaviour
     }
     void Update()
     {
-       //Control
+
+        if (Input.GetKeyDown(KeyCode.Q) && isControlled && !isRotating)
+        {
+            
+            if (grabbedObject == null)
+                TryGrabObject(false);
+            else
+                ReleaseObject();
+        }
+     
+        if (Input.GetKeyDown(KeyCode.E) && isControlled && !MovingObject)
+        {
+
+            
+            if (grabbedObject == null)
+                TryGrabObject(true);
+            else
+                ReleaseObject();
+          
+           
+        }
+        if (isRotating && isControlled)
+            RotateObject();
+
+
+        SliderMain.transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
+        //Control
         if (interacting && Input.GetMouseButtonDown(1) && !isControlled && !isStunned)
         {
             TakeControl();
@@ -145,14 +190,17 @@ public class NPCController : MonoBehaviour
             Debug.Log("Switch" + gameObject.name);
         }
 
-        if (isControlled)
+        if (isControlled && !isRotating)
         {
             if (!isDashing)
             {
+                transform.rotation = Quaternion.Euler(0, 0, 0);
+                player.transform.rotation = Quaternion.Euler(0, 0, 0);
                 HandleMovement();
             }
 
-            HandleDash();
+          if(!isRotating)
+             HandleDash();
         }
        
         if (isControlled)
@@ -194,11 +242,8 @@ public class NPCController : MonoBehaviour
 
         if(Caught)
             agent.SetDestination(player.transform.position);
-
-        SliderMain.transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
+       
     }
-
-    
 
     void TakeControl()
     {
@@ -206,8 +251,10 @@ public class NPCController : MonoBehaviour
         {
             if (!player.GetComponent<PlayerController>().controlingLife)
             {
+                
                 isControlled = true;
-                Consume(true);               
+                Consume(true);
+                LightRay.SetActive(false);
                 agent.enabled = false; // Disable NavMeshAgent
                 player.GetComponent<PlayerController>().controlingLife = true;
                 player.transform.SetParent(transform);
@@ -229,13 +276,14 @@ public class NPCController : MonoBehaviour
            
 
     }
-    public bool Alert;
+   
     public void ReleaseControl()
     {
         if (player.GetComponent<PlayerController>().controlingLife)
         {
             isControlled = false;
             Consume(false);
+            LightRay.SetActive(true);
             player.transform.SetParent(null);
             player.GetComponent<PlayerController>().controlingLife = false;
             player.SetActive(true); // Show player again
@@ -247,9 +295,7 @@ public class NPCController : MonoBehaviour
         }
 
     }
-    [Header("HealthUI")]
-    public GameObject SliderMain;
-    public Slider ControlTimeSlider;
+
     public void Consume(bool value)
     {      
         SliderMain.SetActive(value);
@@ -274,9 +320,13 @@ public class NPCController : MonoBehaviour
                 rb.velocity = new Vector3(0, rb.velocity.y, 0); // Stop drifting
             }
         }
-
+        if (grabbedObject != null && isRotating)
+        {
+            // Keep the object floating in front of the player
+     
+            grabbedObject.transform.position = new Vector3(grabbedObject.transform.position.x, 1.5f, grabbedObject.transform.position.z);
+        }
     }
-
     void HandleMovement()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
@@ -288,6 +338,7 @@ public class NPCController : MonoBehaviour
         {
             rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
         }
+       
     }
 
     void HandleDash()
@@ -457,6 +508,10 @@ public class NPCController : MonoBehaviour
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(startPosition == Vector3.zero ? transform.position : startPosition, roamRadius);
+
+        // Draw raycast in the editor
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, transform.forward * grabRange);
     }
 
     private void OnDrawGizmosSelected()
@@ -472,4 +527,83 @@ public class NPCController : MonoBehaviour
         Gizmos.DrawLine(visionOrigin.position, visionOrigin.position + leftLimit * visionRange);
         Gizmos.DrawLine(visionOrigin.position, visionOrigin.position + rightLimit * visionRange);
     }
+
+    void TryGrabObject(bool RotationValue)
+    {
+        
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.forward, out hit, grabRange, grabbableLayer))
+        {
+            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
+            isRotating = RotationValue;
+            if (!isRotating)
+            {
+                if (objectRb != null)
+                {
+                    MovingObject = true;
+                    grabbedObject = objectRb;
+
+                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
+                    // Attach object using FixedJoint
+                    grabJoint = gameObject.AddComponent<FixedJoint>();
+                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+                    grabJoint.connectedBody = grabbedObject;
+                    grabJoint.breakForce = Mathf.Infinity;
+                    grabJoint.breakTorque = Mathf.Infinity;
+
+                    // Disable gravity for smoother holding
+                    grabbedObject.useGravity = false;
+                }
+            }
+            else
+            {
+                if (objectRb != null)
+                {
+
+                    grabbedObject = objectRb;
+                }
+            }
+           
+          
+        }
+    }
+  
+    void RotateObject()
+    {
+        if(grabbedObject != null)
+        {
+            if (Input.GetKeyDown(KeyCode.W))
+                SnapRotate(grabbedObject.transform.right);
+            if (Input.GetKeyDown(KeyCode.S))
+                SnapRotate(-grabbedObject.transform.right);
+            if (Input.GetKeyDown(KeyCode.A))
+                SnapRotate(Vector3.up);
+            if (Input.GetKeyDown(KeyCode.D))
+                SnapRotate(-Vector3.up);
+        }
+    }
+
+    void SnapRotate(Vector3 axis)
+    {
+        grabbedObject.transform.Rotate(axis, rotationSnapAngle, Space.World);
+    }
+
+
+    void ReleaseObject()
+    {
+        if (grabbedObject != null)
+        {
+            Debug.Log("release");
+            Destroy(grabJoint); // Remove FixedJoint
+            grabbedObject.useGravity = true; // Restore gravity
+            grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+            isRotating = false;
+            MovingObject = false;
+            grabbedObject = null;
+            
+
+        }
+    }
+    
+    
 }
