@@ -21,9 +21,12 @@ MonoBehaviour:
   DashSpeed: 50
   visionRange: 6.5
   visionAngle: 55
-  chaseSpeed: 10
+  chaseSpeed: 12
   normalSpeed: 2
   alertDelay: 1
   controlTime: 50
   stunDuration: 2
   searchTime: 20
+  Dash: 1
+  MoveObjects: 1
+  RotateObjects: 1

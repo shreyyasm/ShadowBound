@@ -27,9 +27,17 @@ public class EnemyStats : ScriptableObject
     public float alertDelay = 2f;
 
     [Header("Control & Stun")]
-    public float controlTime = 5f; // Time before NPC gets stunned if controlled
+    public float controlTime = 5f;
     public float stunDuration = 3f;
     public float searchTime = 4f;
+
+
+    [Header("Abilities")]
+    public bool Dash;
+    public bool MoveObjects;
+    public bool RotateObjects;
+
+  
 
 
 }

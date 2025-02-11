@@ -9,6 +9,8 @@ TagManager:
   - EnemyTrigger
   - Main
   - Ground
+  - Reflector
+  - Receiver
   layers:
   - Default
   - TransparentFX

@@ -82,6 +82,12 @@ public class NPCController : MonoBehaviour
     public GameObject SliderMain;
     public Slider ControlTimeSlider;
 
+
+    [Header("Abilities")]
+    public bool Dash;
+    public bool MoveObjects;
+    public bool RotateObjects;
+
     //Hidden
     private Vector3 moveDirection;
     private Rigidbody rb;
@@ -124,6 +130,11 @@ public class NPCController : MonoBehaviour
         //ControlStats
         moveSpeed = EnemyStats.MoveSpeed;
         dashSpeed = EnemyStats.DashSpeed;
+
+        //Abilites
+        Dash = EnemyStats.Dash;
+        MoveObjects = EnemyStats.MoveObjects;
+        RotateObjects = EnemyStats.RotateObjects;
           
     }
     void Start()
@@ -146,7 +157,7 @@ public class NPCController : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.Q) && isControlled && !isRotating)
+        if (Input.GetKeyDown(KeyCode.Q) && isControlled && !isRotating && MoveObjects)
         {
             
             if (grabbedObject == null)
@@ -155,7 +166,7 @@ public class NPCController : MonoBehaviour
                 ReleaseObject();
         }
      
-        if (Input.GetKeyDown(KeyCode.E) && isControlled && !MovingObject)
+        if (Input.GetKeyDown(KeyCode.E) && isControlled && !MovingObject && RotateObjects)
         {
 
             
@@ -343,23 +354,27 @@ public class NPCController : MonoBehaviour
 
     void HandleDash()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
+        if(Dash)
         {
-            isDashing = true;
-            sphereCollider.isTrigger = true;
-            dashTime = Time.time + dashDuration;
-            lastDashTime = Time.time;
-            rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
-        }
-
-        if (isDashing)
-        {
-            if (Time.time >= dashTime)
+            if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
             {
-                sphereCollider.isTrigger = false;
-                isDashing = false;
+                isDashing = true;
+                sphereCollider.isTrigger = true;
+                dashTime = Time.time + dashDuration;
+                lastDashTime = Time.time;
+                rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
+            }
+
+            if (isDashing)
+            {
+                if (Time.time >= dashTime)
+                {
+                    sphereCollider.isTrigger = false;
+                    isDashing = false;
+                }
             }
         }
+        
     }
     
     private IEnumerator AlertAndChase()
