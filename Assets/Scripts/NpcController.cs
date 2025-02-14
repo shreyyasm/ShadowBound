@@ -57,7 +57,6 @@ public class NPCController : MonoBehaviour
 
 
     [Header("Reference")]
-    public SphereCollider sphereCollider;
     public GameObject LightRay;
 
     [HideInInspector]
@@ -359,7 +358,7 @@ public class NPCController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
             {
                 isDashing = true;
-                sphereCollider.isTrigger = true;
+              
                 dashTime = Time.time + dashDuration;
                 lastDashTime = Time.time;
                 rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
@@ -369,7 +368,7 @@ public class NPCController : MonoBehaviour
             {
                 if (Time.time >= dashTime)
                 {
-                    sphereCollider.isTrigger = false;
+                    
                     isDashing = false;
                 }
             }

@@ -21,7 +21,6 @@ public class PlayerController : MonoBehaviour
     public bool controlingLife;
 
     [Header("Reference")]
-    public SphereCollider sphereCollider;
     public Animator animator;
     public SpriteRenderer spriteRenderer;
 
@@ -129,7 +128,7 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("IsDashing", true);
             isDashing = true;
-            sphereCollider.isTrigger = true;
+            
             dashTime = Time.time + dashDuration;
             lastDashTime = Time.time;
             rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
@@ -141,7 +140,7 @@ public class PlayerController : MonoBehaviour
             {
                 isDashing = false;
                 animator.SetBool("IsDashing", false);
-                sphereCollider.isTrigger = false;
+               
             }
         }
     }

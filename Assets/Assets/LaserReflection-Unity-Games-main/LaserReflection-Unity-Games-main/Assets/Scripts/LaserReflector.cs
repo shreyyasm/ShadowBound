@@ -13,6 +13,7 @@ public class LaserReflector : MonoBehaviour
     LineRenderer lr;
     public bool isOpen;
 
+    public bool gateOpened;
     GameObject tempReflector;
     void Start()
     {
@@ -35,8 +36,10 @@ public class LaserReflector : MonoBehaviour
                     Vector3 temp = Vector3.Reflect(direction, hit.normal);
                     hit.collider.gameObject.GetComponent<LaserReflector>().OpenRay(hit.point, temp);
                 }
-                if(hit.collider.CompareTag("Receiver"))
+                if(hit.collider.CompareTag("Receiver") && !gateOpened)
                 {
+                    DoorController.instance.OpenFinalDoor();
+                    gateOpened = true;
                     Debug.Log("Laser Received");
                 }
                 lr.SetPosition(1, hit.point);
