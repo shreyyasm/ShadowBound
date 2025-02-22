@@ -1,0 +1,414 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class Abilities : MonoBehaviour
+{
+    public int currentAbilityIndex = 0;
+    public List<AbiltiesStats> Playerabilities = new List<AbiltiesStats>();
+
+    [Header("Unlocked Abilities")]
+    public bool Dash;
+    public bool MoveObjects;
+    public bool RotateObjects;
+    public bool TeleportPlayer;
+    public bool DistanceConsume;
+
+    public bool usingAbility;
+
+    [Header("Dash Ability")]
+    public float dashSpeed = 15f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
+    public bool isDashing = false;
+    private float dashTime;
+    private float lastDashTime;
+
+    [Header("Move Ability")]
+    public Transform grabPoint; // Where the object will be held
+    public float grabRange = 3f; // Distance for raycast detection
+    public LayerMask grabbableLayer; // Define what objects can be grabbed
+    private Rigidbody grabbedObject;
+    private FixedJoint grabJoint;
+    public float grabHeightOffset = 1.5f;
+    public bool MovingObject;
+
+    [Header("Rotate Ability")]
+    public float rotationSnapAngle = 90f;
+    public bool isRotating = false;
+
+    [Header("Teleport Ability")]
+    public float teleportRadius = 5f;
+    public float teleportCooldown = 3f;   
+    public bool canTeleport = true;
+    public Transform teleportIndicator; // Child object to indicate teleport position
+
+    [Header("Reference")]
+    public Animator animator;
+    public NPCController NPCController;
+    public GameObject RayPos;
+
+
+ 
+    private void Start()
+    {
+        Playerabilities[0].AbilityUnlocked = Dash;
+        Playerabilities[1].AbilityUnlocked = MoveObjects; 
+        Playerabilities[2].AbilityUnlocked = RotateObjects;
+        Playerabilities[3].AbilityUnlocked = TeleportPlayer; 
+        Playerabilities[4].AbilityUnlocked = DistanceConsume; 
+    }
+
+    private void Update()
+    {
+        UpdateTeleportIndicator();
+        if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !isRotating && Playerabilities[3].AbilityState)
+        {
+            StartCoroutine(Teleport());
+        }
+
+        if (!usingAbility && NPCController.isControlled)
+            HandleAbilitySelection();
+
+        if (NPCController.isControlled && Playerabilities[0].AbilityState)
+        {
+            if (!isRotating)
+                HandleDash();
+        }
+
+        if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !isRotating && Playerabilities[1].AbilityState)
+        {
+            if (grabbedObject == null)
+                TryGrabObject(false);
+
+            else
+                ReleaseObject();
+        }
+
+        if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !MovingObject && Playerabilities[2].AbilityState)
+        {
+            if (grabbedObject == null)
+                TryGrabObject(true);
+
+            else
+                ReleaseObject();
+        }
+
+        if (isRotating && NPCController.isControlled)
+            RotateObject();
+
+    
+
+    }
+    private void FixedUpdate()
+    {
+       
+        if (grabbedObject != null && isRotating)
+        {
+            // Keep the object floating in front of the player
+            grabbedObject.transform.position = new Vector3(grabbedObject.transform.position.x, 1.5f, grabbedObject.transform.position.z);
+        }
+    }
+
+    void HandleDash()
+    {
+        if (Dash)
+        {
+            if (Input.GetMouseButtonDown(1) && Time.time > lastDashTime + dashCooldown && NPCController.moveDirection != Vector3.zero)
+            {
+                isDashing = true;
+                usingAbility = true;
+                dashTime = Time.time + dashDuration;
+                lastDashTime = Time.time;
+                NPCController.rb.velocity = NPCController.moveDirection * dashSpeed; // Apply dash velocity
+            }
+
+            if (isDashing)
+            {
+                if (Time.time >= dashTime)
+                {
+                    isDashing = false;
+                    usingAbility = false;
+                }
+                    
+            }
+        }
+
+    }
+    
+    void TryGrabObject(bool RotationValue)
+    {
+
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.forward, out hit, grabRange, grabbableLayer))
+        {
+            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
+            isRotating = RotationValue;
+           
+            if (!isRotating)
+            {
+                if (objectRb != null)
+                {
+                    MovingObject = true;
+                    grabbedObject = objectRb;
+                    usingAbility = true;
+                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
+                    // Attach object using FixedJoint
+                    grabJoint = gameObject.AddComponent<FixedJoint>();
+                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+                    grabJoint.connectedBody = grabbedObject;
+                    grabJoint.breakForce = Mathf.Infinity;
+                    grabJoint.breakTorque = Mathf.Infinity;
+
+                    // Disable gravity for smoother holding
+                    grabbedObject.useGravity = false;
+                }
+            }
+            else
+            {
+                if (objectRb != null)
+                    grabbedObject = objectRb;
+               
+            }
+        }
+        if (Physics.Raycast(transform.position, -transform.forward, out hit, grabRange, grabbableLayer))
+        {
+            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
+            isRotating = RotationValue;
+            if (!isRotating)
+            {
+                if (objectRb != null)
+                {
+                    MovingObject = true;
+                    grabbedObject = objectRb;
+                    usingAbility = true;
+                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
+                    // Attach object using FixedJoint
+                    grabJoint = gameObject.AddComponent<FixedJoint>();
+                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+                    grabJoint.connectedBody = grabbedObject;
+                    grabJoint.breakForce = Mathf.Infinity;
+                    grabJoint.breakTorque = Mathf.Infinity;
+
+                    // Disable gravity for smoother holding
+                    grabbedObject.useGravity = false;
+                }
+            }
+            else
+            {
+                if (objectRb != null)
+                    grabbedObject = objectRb;
+
+            }
+        }
+        if (Physics.Raycast(transform.position, RayPos.transform.forward, out hit, grabRange, grabbableLayer))
+        {
+            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
+            isRotating = RotationValue;
+            if (!isRotating)
+            {
+                if (objectRb != null)
+                {
+                    MovingObject = true;
+                    grabbedObject = objectRb;
+                    usingAbility = true;
+                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
+                    // Attach object using FixedJoint
+                    grabJoint = gameObject.AddComponent<FixedJoint>();
+                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+                    grabJoint.connectedBody = grabbedObject;
+                    grabJoint.breakForce = Mathf.Infinity;
+                    grabJoint.breakTorque = Mathf.Infinity;
+
+                    // Disable gravity for smoother holding
+                    grabbedObject.useGravity = false;
+                }
+            }
+            else
+            {
+                if (objectRb != null)
+                    grabbedObject = objectRb;
+
+            }
+        }
+        if (Physics.Raycast(transform.position, -RayPos.transform.forward, out hit, grabRange, grabbableLayer))
+        {
+            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
+            isRotating = RotationValue;
+            if (!isRotating)
+            {
+                if (objectRb != null)
+                {
+                    MovingObject = true;
+                    grabbedObject = objectRb;
+                    usingAbility = true;
+                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
+                    // Attach object using FixedJoint
+                    grabJoint = gameObject.AddComponent<FixedJoint>();
+                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+                    grabJoint.connectedBody = grabbedObject;
+                    grabJoint.breakForce = Mathf.Infinity;
+                    grabJoint.breakTorque = Mathf.Infinity;
+
+                    // Disable gravity for smoother holding
+                    grabbedObject.useGravity = false;
+                }
+            }
+            else
+            {
+                if (objectRb != null)
+                    grabbedObject = objectRb;
+
+            }
+        }
+    }
+
+    void RotateObject()
+    {
+        usingAbility = true;
+        if (grabbedObject != null)
+        {
+            if (Input.GetKeyDown(KeyCode.W))
+                SnapRotate(grabbedObject.transform.right);
+            if (Input.GetKeyDown(KeyCode.S))
+                SnapRotate(-grabbedObject.transform.right);
+            if (Input.GetKeyDown(KeyCode.A))
+                SnapRotate(Vector3.up);
+            if (Input.GetKeyDown(KeyCode.D))
+                SnapRotate(-Vector3.up);
+        }
+    }
+
+    void SnapRotate(Vector3 axis)
+    {
+        grabbedObject.transform.Rotate(axis, rotationSnapAngle, Space.World);
+    }
+
+
+    void ReleaseObject()
+    {
+        if (grabbedObject != null)
+        {
+            Destroy(grabJoint); // Remove FixedJoint
+            grabbedObject.useGravity = true; // Restore gravity
+            grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+            isRotating = false;
+            MovingObject = false;
+            grabbedObject = null;
+            usingAbility = false;
+        }
+    }
+    void OnDrawGizmos()
+    {
+        if(Playerabilities[2].AbilityState || Playerabilities[1].AbilityState)
+        {
+            // Draw raycast in the editor
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(transform.position, transform.forward * grabRange);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(transform.position, -transform.forward * grabRange);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(transform.position, RayPos.transform.forward * grabRange);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(transform.position, -RayPos.transform.forward * grabRange);
+        }
+        if (Playerabilities[3].AbilityState)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, teleportRadius);
+
+            if (teleportIndicator != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(teleportIndicator.position, 0.2f);
+            }
+        }
+            
+    }
+    [System.Serializable]
+    public class AbiltiesStats
+    {
+        public string AbilityName;
+        public bool AbilityUnlocked;
+        public bool AbilityState;
+    }
+
+  
+    void HandleAbilitySelection()
+    {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll != 0 && Playerabilities.Count > 0)
+        {
+            // Disable all abilities
+            for (int i = 0; i < Playerabilities.Count; i++)
+                Playerabilities[i].AbilityState = false;
+
+            // Find the next unlocked ability
+            int newIndex = currentAbilityIndex;
+            do
+            {
+                newIndex = (newIndex + (scroll > 0 ? 1 : -1) + Playerabilities.Count) % Playerabilities.Count;
+            } while (!Playerabilities[newIndex].AbilityUnlocked);
+
+            // Update ability state
+            currentAbilityIndex = newIndex;
+            // Enable selected ability
+            Playerabilities[currentAbilityIndex].AbilityState = true;
+        }
+    }
+    public void ReleaseAbility()
+    {
+        usingAbility = false;
+        ReleaseObject();
+    }
+   
+    IEnumerator Teleport()
+    {
+        if (!canTeleport) yield break;
+        canTeleport = false;
+        ///animator.SetTrigger("TeleportStart");
+
+        yield return new WaitForSeconds(1f); // Wait for animation to finish
+
+        // Stop any movement before teleporting
+        NPCController.rb.velocity = Vector3.zero;
+        NPCController.rb.isKinematic = true; // Temporarily disable physics to avoid interference
+
+        transform.position = teleportIndicator.position; // Move player instantly
+
+        yield return new WaitForFixedUpdate(); // Ensure the physics update happens after teleport
+
+        NPCController.rb.isKinematic = false; // Re-enable physics
+
+        yield return new WaitForSeconds(teleportCooldown);
+        canTeleport = true;
+    }
+    void UpdateTeleportIndicator()
+    {
+        if (Playerabilities[3].AbilityState)
+        {
+            if (teleportIndicator == null) return;
+
+            if (canTeleport)
+            {
+                Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Plane playerPlane = new Plane(Vector3.up, transform.position);
+                if (playerPlane.Raycast(mouseRay, out float hitDistance))
+                {
+                    Vector3 mousePosition = mouseRay.GetPoint(hitDistance);
+                    Vector3 direction = (mousePosition - transform.position).normalized;
+                    teleportIndicator.position = transform.position + direction * teleportRadius;
+                }
+            }
+        }
+            
+       
+    }
+
+
+}

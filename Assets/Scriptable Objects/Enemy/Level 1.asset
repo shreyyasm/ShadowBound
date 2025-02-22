@@ -30,3 +30,4 @@ MonoBehaviour:
   Dash: 1
   MoveObjects: 1
   RotateObjects: 1
+  TeleportPlayer: 1

@@ -5327,6 +5327,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 034bc47afcbf5e141a58d5c20b7808e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &628077835
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 628077836}
+  m_Layer: 7
+  m_Name: Abilties Ray Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &628077836
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628077835}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7473247421802521487}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &633030989
 GameObject:
   m_ObjectHideFlags: 0
@@ -13663,6 +13694,37 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &1752768144
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1752768145}
+  m_Layer: 7
+  m_Name: Teleport position
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1752768145
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1752768144}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 4.24}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7473247421802521487}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1799384451
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16094,6 +16156,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetHeight: 0
   riseSpeed: 2
+--- !u!135 &2123195941 stripped
+SphereCollider:
+  m_CorrespondingSourceObject: {fileID: 721304654272385003, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+  m_PrefabInstance: {fileID: 7473247421802521483}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2140255411
 GameObject:
   m_ObjectHideFlags: 0
@@ -16588,6 +16655,10 @@ PrefabInstance:
       propertyPath: m_Intensity
       value: 120
       objectReference: {fileID: 0}
+    - target: {fileID: 3686581202472290957, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 5257304379405330452, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.921
@@ -16637,6 +16708,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1845803000}
     - target: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      propertyPath: abilities
+      value: 
+      objectReference: {fileID: 7473247421802521488}
+    - target: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       propertyPath: grabPoint
       value: 
       objectReference: {fileID: 281901782}
@@ -16678,13 +16753,95 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5257304379405330452, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
       insertIndex: -1
       addedObject: {fileID: 281901782}
-    m_AddedComponents: []
+    - targetCorrespondingSourceObject: {fileID: 5257304379405330452, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 628077836}
+    - targetCorrespondingSourceObject: {fileID: 5257304379405330452, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1752768145}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7512155121285940767, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 7473247421802521488}
   m_SourcePrefab: {fileID: 100100000, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+--- !u!1 &7473247421802521484 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7512155121285940767, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+  m_PrefabInstance: {fileID: 7473247421802521483}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7473247421802521485 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7415663616465029560, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
+  m_PrefabInstance: {fileID: 7473247421802521483}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7473247421802521484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474e908a75c2ac344b029c42fa960893, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &7473247421802521487 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5257304379405330452, guid: 0d2ca234dec0e8d489b256d60c156a67, type: 3}
   m_PrefabInstance: {fileID: 7473247421802521483}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7473247421802521488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7473247421802521484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58f7cfbd3c93b8e44ab0a03da16809c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Dash: 0
+  MoveObjects: 0
+  RotateObjects: 0
+  TeleportPlayer: 0
+  DistanceConsume: 0
+  usingAbility: 0
+  dashSpeed: 50
+  dashDuration: 0.4
+  dashCooldown: 0.6
+  isDashing: 0
+  grabPoint: {fileID: 281901782}
+  grabRange: 3
+  grabbableLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  grabHeightOffset: 1.5
+  MovingObject: 0
+  rotationSnapAngle: 45
+  isRotating: 0
+  NPCController: {fileID: 7473247421802521485}
+  test: {x: 0, y: 0, z: 0}
+  RayPos: {fileID: 628077835}
+  currentAbilityIndex: 0
+  Playerabilities:
+  - AbilityName: Dash
+    AbilityUnlocked: 0
+    AbilityState: 1
+  - AbilityName: Move Objects
+    AbilityUnlocked: 0
+    AbilityState: 0
+  - AbilityName: Rotate Objects
+    AbilityUnlocked: 0
+    AbilityState: 0
+  - AbilityName: Teleport
+    AbilityUnlocked: 0
+    AbilityState: 0
+  - AbilityName: Distance Consume
+    AbilityUnlocked: 0
+    AbilityState: 0
+  teleportRadius: 8
+  teleportCooldown: 1
+  animator: {fileID: 0}
+  canTeleport: 1
+  teleportIndicator: {fileID: 1752768145}
+  sphereCollider: {fileID: 2123195941}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -16695,7 +16852,6 @@ SceneRoots:
   - {fileID: 658626266}
   - {fileID: 32351676}
   - {fileID: 2101906215}
-  - {fileID: 4044248297298600465}
   - {fileID: 7473247421802521483}
   - {fileID: 888450390}
   - {fileID: 1272503855}
@@ -16709,3 +16865,4 @@ SceneRoots:
   - {fileID: 1586959012}
   - {fileID: 2145293028}
   - {fileID: 2140255412}
+  - {fileID: 4044248297298600465}
