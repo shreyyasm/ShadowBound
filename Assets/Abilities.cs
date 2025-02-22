@@ -45,6 +45,12 @@ public class Abilities : MonoBehaviour
     public bool canTeleport = true;
     public Transform teleportIndicator; // Child object to indicate teleport position
 
+    [Header("Distant Consume Ability")]
+    public float snapThreshold = 1.5f; // Distance for snapping to enemy
+    public LayerMask enemyLayer;
+    private Transform controlledEnemy;
+    private Transform snappedEnemy;
+
     [Header("Reference")]
     public Animator animator;
     public NPCController NPCController;
@@ -63,7 +69,10 @@ public class Abilities : MonoBehaviour
 
     private void Update()
     {
+        
+        SelectEnemyWithMouse();   
         UpdateTeleportIndicator();
+
         if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !isRotating && Playerabilities[3].AbilityState)
         {
             StartCoroutine(Teleport());
@@ -328,7 +337,14 @@ public class Abilities : MonoBehaviour
                 Gizmos.DrawSphere(teleportIndicator.position, 0.2f);
             }
         }
-            
+        
+
+        if (snappedEnemy != null &&  Playerabilities[4].AbilityState)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(snappedEnemy.position, 0.5f); // Clearer sphere
+            Gizmos.DrawLine(transform.position, snappedEnemy.position); // Line from player to enemy
+        }
     }
     [System.Serializable]
     public class AbiltiesStats
@@ -409,6 +425,52 @@ public class Abilities : MonoBehaviour
             
        
     }
+   
+    void SelectEnemyWithMouse()
+    {
+        if(Playerabilities[4].AbilityState)
+        {
+            Collider[] enemies = Physics.OverlapSphere(transform.position, Mathf.Infinity, enemyLayer);
+            Transform closestEnemy = null;
+            float closestDistance = float.MaxValue;
 
+            Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Plane plane = new Plane(Vector3.up, Vector3.zero);
+            if (!plane.Raycast(mouseRay, out float enter)) return;
+
+            Vector3 mouseWorldPos = mouseRay.GetPoint(enter);
+
+            foreach (var enemy in enemies)
+            {
+                float distanceToMouse = Vector3.Distance(mouseWorldPos, enemy.transform.position);
+                if (distanceToMouse < snapThreshold && distanceToMouse < closestDistance)
+                {
+                    closestDistance = distanceToMouse;
+                    closestEnemy = enemy.transform;
+                    NPCController.temp = closestEnemy.gameObject;
+                    if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !isRotating && Playerabilities[4].AbilityState)
+                    {
+                        NPCController.SwitchControl();
+                    }
+                }
+            }
+
+            if (closestEnemy != snappedEnemy)
+            {
+                snappedEnemy = closestEnemy;
+            }
+
+            // **Break snap if the mouse moves away**
+            if (snappedEnemy != null)
+            {
+                float distanceToMouse = Vector3.Distance(mouseWorldPos, snappedEnemy.position);
+                if (distanceToMouse > snapThreshold * 1.5f) // Add buffer to prevent flickering
+                {
+                    snappedEnemy = null;
+                }
+            }
+        }
+       
+    }
 
 }

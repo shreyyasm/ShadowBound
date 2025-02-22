@@ -106,13 +106,13 @@ public class PlayerController : MonoBehaviour
         if (moveDirection.magnitude >= 0.1f)
         {
             rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
-            if(moveDirection.x >=-0.1)
-            {
-                spriteRenderer.flipX = true;
-            }
-            else
+
+            if (moveDirection.x < 0 || moveDirection.z > 0)
+
                 spriteRenderer.flipX = false;
 
+            if (moveDirection.x > 0 || moveDirection.z < 0)
+                spriteRenderer.flipX = true;
 
             animator.SetBool("IsWalking", true);
         }

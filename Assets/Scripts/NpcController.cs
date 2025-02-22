@@ -56,10 +56,11 @@ public class NPCController : MonoBehaviour
     [Header("Reference")]
     public GameObject LightRay;
     public Abilities abilities;
+    public GameObject sprite;
 
     [HideInInspector]
     public Outlinable outline;
-    [HideInInspector]
+    
     public GameObject temp;
 
 
@@ -78,7 +79,7 @@ public class NPCController : MonoBehaviour
     private GameObject player;
     private PlayerController playerController;
     private Camera cam;
-
+    Animator animator;
     private void Awake()
     {
         LoadplayerData();
@@ -120,6 +121,7 @@ public class NPCController : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         outline = GetComponent<Outlinable>();
+        animator = GetComponent<Animator>();
         cam = Camera.main;
         ControlTimeSlider.maxValue  = controlTime;
         controlTimer = controlTime;
@@ -133,10 +135,12 @@ public class NPCController : MonoBehaviour
         agent.speed = normalSpeed;
         MoveToNextPatrol();
     }
+    public float test;
     void Update()
     {
- 
+        
         SliderMain.transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
+        sprite.transform.rotation = Quaternion.Euler(30, 45, 0);
         //Control
         if (interacting && Input.GetMouseButtonDown(0) && !isControlled && !isStunned && !abilities.usingAbility)
         {
@@ -194,7 +198,8 @@ public class NPCController : MonoBehaviour
             return;
         if (!isChasing && !agent.pathPending && agent.remainingDistance < 0.5f && !Caught)
         {
-            MoveToNextPatrol();
+            StartCoroutine(ShortStun());
+            //MoveToNextPatrol();
         }
         playerInSight = CheckPlayerInVision();
 
@@ -205,7 +210,16 @@ public class NPCController : MonoBehaviour
 
         if(Caught)
             agent.SetDestination(player.transform.position);
-       
+     
+        if(!isControlled)
+        {
+            if (transform.rotation.eulerAngles.y > 90 && transform.rotation.eulerAngles.y < 270)
+                sprite.GetComponent<SpriteRenderer>().flipX = false;
+            else
+                sprite.GetComponent<SpriteRenderer>().flipX = true;
+
+        }
+        
     }
     
    
@@ -215,22 +229,31 @@ public class NPCController : MonoBehaviour
         {
             if (!player.GetComponent<PlayerController>().controlingLife)
             {
-                
-                isControlled = true;
-                Consume(true);
-                LightRay.SetActive(false);
-                agent.enabled = false; // Disable NavMeshAgent
-                player.GetComponent<PlayerController>().controlingLife = true;
-                player.transform.SetParent(transform);
-                player.transform.localPosition = Vector3.zero;
-                player.SetActive(false); // Hide player
-                canSwitch = false;
-                controlTimer = controlTime;
+                StartCoroutine(TakeControlEnum());
+               
             }
 
         }
     }
-    void SwitchControl()
+    IEnumerator TakeControlEnum()
+    {
+        playerController.animator.SetBool("IsConsuming", true);
+        yield return new WaitForSeconds(0.3f);
+        playerController.animator.SetBool("IsConsuming", false);
+        playerController.animator.SetBool("IsWalking", true);
+        animator.SetLayerWeight(1, 1);
+        isControlled = true;
+        Consume(true);
+        LightRay.SetActive(false);
+        agent.enabled = false; // Disable NavMeshAgent
+        player.GetComponent<PlayerController>().controlingLife = true;
+        player.transform.SetParent(transform);
+        player.transform.localPosition = Vector3.zero;
+        player.SetActive(false); // Hide player
+        canSwitch = false;
+        controlTimer = controlTime;
+    }
+    public void SwitchControl()
     {
         if (playerController.Levelindex >= LevelIndex)
         {
@@ -245,6 +268,7 @@ public class NPCController : MonoBehaviour
     {
         if (player.GetComponent<PlayerController>().controlingLife)
         {
+            animator.SetLayerWeight(1, 0);
             isControlled = false;
             Consume(false);
             LightRay.SetActive(true);
@@ -299,6 +323,16 @@ public class NPCController : MonoBehaviour
         if (moveDirection.magnitude >= 0.1f && abilities.canTeleport)
         {
             rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
+            animator.SetBool("IsWalking", true);
+
+            if(moveDirection.x < 0 || moveDirection.z >0)
+                sprite.GetComponent<SpriteRenderer>().flipX = true;
+            if(moveDirection.x > 0 || moveDirection.z < 0)
+                sprite.GetComponent<SpriteRenderer>().flipX = false;
+        }
+        else
+        {
+            animator.SetBool("IsWalking", false);
         }
        
     } 
@@ -335,6 +369,7 @@ public class NPCController : MonoBehaviour
     {
         isStunned = true;
         agent.isStopped = true;
+        animator.SetBool("IsWalking", false);
         yield return new WaitForSeconds(stunDuration);
         agent.isStopped = false;
         isStunned = false;
@@ -385,11 +420,14 @@ public class NPCController : MonoBehaviour
     {
         if (patrolPoints.Length == 0 && !Caught)
             return;
-       
         agent.enabled = true;
+        agent.isStopped = false;
         agent.speed = normalSpeed;
         agent.SetDestination(patrolPoints[currentPatrolIndex].position);
         currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+        animator.SetBool("IsWalking", true);
+
+
     }
     private bool CheckPlayerInVision()
     {
