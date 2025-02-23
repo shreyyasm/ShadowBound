@@ -59,7 +59,7 @@ public class NPCController : MonoBehaviour
     public GameObject sprite;
     public AudioSource audioSource;
     public AudioSource FootaudioSource;
-
+    public GameObject interactSign;
     public GameObject temp;
 
 
@@ -121,7 +121,7 @@ public class NPCController : MonoBehaviour
         abilities.MoveObjects = EnemyStats.MoveObjects;
         abilities.RotateObjects = EnemyStats.RotateObjects;
         abilities.TeleportPlayer = EnemyStats.TeleportPlayer;
-        FootaudioSource.Pause();
+      
 
 
     }
@@ -138,7 +138,8 @@ public class NPCController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.drag = 5f;
         rb.freezeRotation = true; // Prevent rotation due to physics
-
+        FootaudioSource.Play();
+       FootaudioSource.Pause();
         agent.speed = normalSpeed;
         MoveToNextPatrol();
     }
@@ -147,9 +148,10 @@ public class NPCController : MonoBehaviour
     {
         
         SliderMain.transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
+        //interactSign.transform.rotation = Quaternion.Euler(30, 45, 0);
         sprite.transform.rotation = Quaternion.Euler(30, 45, 0);
         //Control
-        if (interacting && Input.GetMouseButtonDown(0) && !isControlled && !isStunned && !abilities.usingAbility && !check)
+        if (interacting && Input.GetMouseButtonDown(0) && !isStunned && !isControlled && !abilities.usingAbility && !check)
         {
             TakeControl();
         }
@@ -164,7 +166,7 @@ public class NPCController : MonoBehaviour
         {
            
             SwitchControl();
-            Debug.Log("Switch" + gameObject.name);
+            Debug.Log("Switch" + gameObject.name); 
         }
 
         if (isControlled)
@@ -174,8 +176,9 @@ public class NPCController : MonoBehaviour
                 transform.rotation = Quaternion.Euler(0, 0, 0);
                 player.transform.rotation = Quaternion.Euler(0, 0, 0);
                 HandleMovement();
+                agent.enabled = false;
             }
-        }
+        } 
        
         if (isControlled)
         {
@@ -201,11 +204,11 @@ public class NPCController : MonoBehaviour
             }
         }
       
-        if (isStunned || isSearching)
+        if (isStunned || isSearching || Waiting)
             return;
         if (!isChasing && !agent.pathPending && agent.remainingDistance < 0.5f && !Caught)
         {
-            StartCoroutine(ShortStun());
+            StartCoroutine(WaitBeforeMoving());
             //MoveToNextPatrol();
         }
         playerInSight = CheckPlayerInVision();
@@ -221,9 +224,16 @@ public class NPCController : MonoBehaviour
         if(!isControlled)
         {
             if (transform.rotation.eulerAngles.y > 90 && transform.rotation.eulerAngles.y < 270)
+            {
                 sprite.GetComponent<SpriteRenderer>().flipX = false;
+               
+            }
+                
             else
+            {
                 sprite.GetComponent<SpriteRenderer>().flipX = true;
+            }
+               
 
         }
         
@@ -251,6 +261,7 @@ public class NPCController : MonoBehaviour
         check = true;
         player.SetActive(false); // Hide player
         audioSource.PlayOneShot(PlayerPossesSFX);
+        interactSign.SetActive(false);
         Instantiate(PlayerPossesVFX, playerController.VFXPos.position, Quaternion.identity);
 
         yield return new WaitForSeconds(0.8f);
@@ -286,6 +297,7 @@ public class NPCController : MonoBehaviour
     {
         if (player.GetComponent<PlayerController>().controlingLife)
         {
+            FootaudioSource.Pause();
             check = false;
             GameObject newGameObject = Instantiate(PossesOutVFX, VFXPos.position - new Vector3(0.2f,1f,0), Quaternion.identity);
             newGameObject.transform.SetParent(transform);
@@ -351,8 +363,10 @@ public class NPCController : MonoBehaviour
             FootaudioSource.UnPause();
             if (moveDirection.x < 0 || moveDirection.z >0)
                 sprite.GetComponent<SpriteRenderer>().flipX = true;
+                
             if(moveDirection.x > 0 || moveDirection.z < 0)
                 sprite.GetComponent<SpriteRenderer>().flipX = false;
+  
         }
         else
         {
@@ -402,6 +416,22 @@ public class NPCController : MonoBehaviour
         controlTimer = controlTime;
         MoveToNextPatrol();
     }
+    public bool Waiting;
+    public IEnumerator WaitBeforeMoving()
+    {
+        Waiting = true;
+        agent.isStopped = true;
+        animator.SetBool("IsWalking", false);
+        yield return new WaitForSeconds(stunDuration);
+        if(agent.enabled)
+            agent.isStopped = false;
+        Waiting = false;
+        Alert = false;
+        controlTimer = controlTime;
+        MoveToNextPatrol();
+    }
+
+
     private IEnumerator SearchForPlayer()
     {
         isSearching = true;
@@ -486,7 +516,8 @@ public class NPCController : MonoBehaviour
         if (other.CompareTag("Enemy") && !isControlled)
         {
             interacting = true;
-           
+            interactSign.SetActive(true);
+
         }
         
     }
@@ -505,6 +536,7 @@ public class NPCController : MonoBehaviour
         if (other.CompareTag("Enemy") && !isControlled)
         {
             interacting = false;
+            interactSign.SetActive(false);
         }
     }
     void OnDrawGizmos()

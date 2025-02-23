@@ -55,7 +55,7 @@ public class Abilities : MonoBehaviour
     public Animator animator;
     public NPCController NPCController;
     public GameObject RayPos;
-
+    public AudioSource audioSource;
 
  
     private void Start()
@@ -69,7 +69,7 @@ public class Abilities : MonoBehaviour
 
     private void Update()
     {
-        
+        UpdateCardUI();
         SelectEnemyWithMouse();   
         UpdateTeleportIndicator();
 
@@ -346,37 +346,7 @@ public class Abilities : MonoBehaviour
             Gizmos.DrawLine(transform.position, snappedEnemy.position); // Line from player to enemy
         }
     }
-    [System.Serializable]
-    public class AbiltiesStats
-    {
-        public string AbilityName;
-        public bool AbilityUnlocked;
-        public bool AbilityState;
-    }
-
-  
-    void HandleAbilitySelection()
-    {
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll != 0 && Playerabilities.Count > 0)
-        {
-            // Disable all abilities
-            for (int i = 0; i < Playerabilities.Count; i++)
-                Playerabilities[i].AbilityState = false;
-
-            // Find the next unlocked ability
-            int newIndex = currentAbilityIndex;
-            do
-            {
-                newIndex = (newIndex + (scroll > 0 ? 1 : -1) + Playerabilities.Count) % Playerabilities.Count;
-            } while (!Playerabilities[newIndex].AbilityUnlocked);
-
-            // Update ability state
-            currentAbilityIndex = newIndex;
-            // Enable selected ability
-            Playerabilities[currentAbilityIndex].AbilityState = true;
-        }
-    }
+    
     public void ReleaseAbility()
     {
         usingAbility = false;
@@ -470,7 +440,95 @@ public class Abilities : MonoBehaviour
                 }
             }
         }
-       
+
     }
 
+    [System.Serializable]
+    public class AbiltiesStats
+    {
+        public string AbilityName;
+        public bool AbilityUnlocked;
+        public bool AbilityState;
+    }
+
+    public List<Transform> abilityCards; // Drag UI Card Transforms in Inspector
+    public Vector3 selectedScale = new Vector3(1.2f, 1.2f, 1f);
+    public Vector3 normalScale = Vector3.one;
+    private int previousAbilityIndex = -1;
+    public float spacing = 100f; // Adjust for better alignment
+    public AudioClip abilityChangeSound;
+    void HandleAbilitySelection()
+    {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll != 0 && Playerabilities.Count > 0)
+        {
+            // Disable all abilities
+            for (int i = 0; i < Playerabilities.Count; i++)
+                Playerabilities[i].AbilityState = false;
+
+            // Find the next unlocked ability
+            int newIndex = currentAbilityIndex;
+            do
+            {
+                newIndex = (newIndex + (scroll > 0 ? 1 : -1) + Playerabilities.Count) % Playerabilities.Count;
+                audioSource.PlayOneShot(abilityChangeSound);
+            } while (!Playerabilities[newIndex].AbilityUnlocked);
+
+            // Update ability state
+            currentAbilityIndex = newIndex;
+            // Enable selected ability
+            Playerabilities[currentAbilityIndex].AbilityState = true;
+
+            if (newIndex != currentAbilityIndex)
+            {
+                // Reset previous card scale
+                if (previousAbilityIndex >= 0 && previousAbilityIndex < abilityCards.Count)
+                {
+                    abilityCards[previousAbilityIndex].localScale = normalScale;
+                }
+
+                // Scale up new selected card
+                if (newIndex < abilityCards.Count)
+                {
+                    abilityCards[newIndex].localScale = selectedScale;
+                }
+
+                previousAbilityIndex = currentAbilityIndex;
+                currentAbilityIndex = newIndex;
+            }
+        }
+
+    }
+   public void UpdateCardUI()
+    {
+        // Adjust scales & positions dynamically
+        float totalWidth = 0f;
+        for (int i = 0; i < abilityCards.Count; i++)
+        {
+            bool isSelected = (i == currentAbilityIndex);
+            Vector3 targetScale = isSelected ? selectedScale : normalScale;
+
+            // Apply smooth scale transition
+            abilityCards[i].localScale = Vector3.Lerp(abilityCards[i].localScale, targetScale, Time.deltaTime * 10f);
+
+            // Compute new position offsets
+            float offset = isSelected ? selectedScale.x : normalScale.x;
+            totalWidth += offset * spacing;
+        }
+
+        // Center the ability cards dynamically
+        float startX = -totalWidth / 2f;
+        for (int i = 0; i < abilityCards.Count; i++)
+        {
+            bool isSelected = (i == currentAbilityIndex);
+            float offset = isSelected ? selectedScale.x : normalScale.x;
+            Vector3 targetPosition = new Vector3(startX + offset * spacing / 2, abilityCards[i].localPosition.y, abilityCards[i].localPosition.z);
+
+            // Apply smooth position transition
+            abilityCards[i].localPosition = Vector3.Lerp(abilityCards[i].localPosition, targetPosition, Time.deltaTime * 10f);
+
+            startX += offset * spacing;
+        }
+    }
+    
 }

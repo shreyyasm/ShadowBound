@@ -153,7 +153,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             other.GetComponent<NPCController>().interacting = true;
-           
+            other.GetComponent<NPCController>().interactSign.SetActive(true);
 
         }
         if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
@@ -175,6 +175,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             other.GetComponent<NPCController>().interacting = false;
+            other.GetComponent<NPCController>().interactSign.SetActive(false);
 
         }
         if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
@@ -188,6 +189,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled)
         {
             other.GetComponent<NPCController>().interacting = false;
+            other.GetComponent<NPCController>().interactSign.SetActive(false);
         }
     }
 
