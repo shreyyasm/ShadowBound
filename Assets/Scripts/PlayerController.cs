@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [Header("Reference")]
     public Animator animator;
     public SpriteRenderer spriteRenderer;
+    public Transform VFXPos;
 
     private Vector3 moveDirection;
     private Rigidbody rb;
@@ -32,8 +33,8 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 isoForward = new Vector3(1, 0, 1).normalized;
     private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
-   
-    
+
+    AudioSource audioSource;
     [System.Serializable]
     public class PlayerData
     {
@@ -49,7 +50,7 @@ public class PlayerController : MonoBehaviour
     {
         //PlayerPrefs.SetString("PlayerStats", "Level 1");
         //playerLevel = PlayerPrefs.GetString("PlayerStats");
-       
+       audioSource = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
         rb.drag = 5f;
         rb.freezeRotation = true; // Prevent rotation due to physics
@@ -89,10 +90,12 @@ public class PlayerController : MonoBehaviour
         if (moveDirection.magnitude >= 0.1f)
         {
             rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
+            audioSource.UnPause();
         }
         else
         {
             rb.velocity = new Vector3(0, rb.velocity.y, 0); // Stop drifting
+            audioSource.Pause();
         }
     }
     //public float moveDir;
@@ -150,14 +153,14 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             other.GetComponent<NPCController>().interacting = true;
-            other.GetComponent<NPCController>().outline.enabled = true;
+           
 
         }
         if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
         {
             other.GetComponent<NPCController>().canSwitch = true;
             other.GetComponent<NPCController>().temp = other.gameObject;
-            other.GetComponent<Outlinable>().enabled = true;
+          
 
         }
         if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled)
@@ -172,7 +175,6 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             other.GetComponent<NPCController>().interacting = false;
-            other.GetComponent<NPCController>().outline.enabled = false;
 
         }
         if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
@@ -180,7 +182,7 @@ public class PlayerController : MonoBehaviour
 
             other.GetComponent<NPCController>().canSwitch = false;
             other.GetComponent<NPCController>().temp = null;
-            other.GetComponent<Outlinable>().enabled = false;
+
 
         }
         if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled)

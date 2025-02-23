@@ -57,16 +57,24 @@ public class NPCController : MonoBehaviour
     public GameObject LightRay;
     public Abilities abilities;
     public GameObject sprite;
+    public AudioSource audioSource;
+    public AudioSource FootaudioSource;
 
-    [HideInInspector]
-    public Outlinable outline;
-    
     public GameObject temp;
 
 
     [Header("HealthUI")]
     public GameObject SliderMain;
     public Slider ControlTimeSlider;
+
+    [Header("VFX")]
+    public GameObject PossesVFX;
+    public GameObject PlayerPossesVFX;
+    public GameObject PossesOutVFX;
+    public AudioClip PossesdSFX;
+    public AudioClip PlayerPossesSFX;
+    public AudioClip PossesOutSFX;
+    public Transform VFXPos;
 
 
 
@@ -113,14 +121,13 @@ public class NPCController : MonoBehaviour
         abilities.MoveObjects = EnemyStats.MoveObjects;
         abilities.RotateObjects = EnemyStats.RotateObjects;
         abilities.TeleportPlayer = EnemyStats.TeleportPlayer;
-
+        FootaudioSource.Pause();
 
 
     }
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        outline = GetComponent<Outlinable>();
         animator = GetComponent<Animator>();
         cam = Camera.main;
         ControlTimeSlider.maxValue  = controlTime;
@@ -135,14 +142,14 @@ public class NPCController : MonoBehaviour
         agent.speed = normalSpeed;
         MoveToNextPatrol();
     }
-    public float test;
+    bool check;
     void Update()
     {
         
         SliderMain.transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
         sprite.transform.rotation = Quaternion.Euler(30, 45, 0);
         //Control
-        if (interacting && Input.GetMouseButtonDown(0) && !isControlled && !isStunned && !abilities.usingAbility)
+        if (interacting && Input.GetMouseButtonDown(0) && !isControlled && !isStunned && !abilities.usingAbility && !check)
         {
             TakeControl();
         }
@@ -235,15 +242,26 @@ public class NPCController : MonoBehaviour
 
         }
     }
+
     IEnumerator TakeControlEnum()
     {
-        playerController.animator.SetBool("IsConsuming", true);
-        yield return new WaitForSeconds(0.3f);
-        playerController.animator.SetBool("IsConsuming", false);
+        //playerController.animator.SetBool("IsConsuming", true);
+       
+        agent.isStopped = true;
+        check = true;
+        player.SetActive(false); // Hide player
+        audioSource.PlayOneShot(PlayerPossesSFX);
+        Instantiate(PlayerPossesVFX, playerController.VFXPos.position, Quaternion.identity);
+
+        yield return new WaitForSeconds(0.8f);
+        //playerController.animator.SetBool("IsConsuming", false);
         playerController.animator.SetBool("IsWalking", true);
+        audioSource.PlayOneShot(PossesdSFX);
         animator.SetLayerWeight(1, 1);
         isControlled = true;
         Consume(true);
+        GameObject newGameObject = Instantiate(PossesVFX, VFXPos.position, Quaternion.identity);
+        newGameObject.transform.SetParent(transform);
         LightRay.SetActive(false);
         agent.enabled = false; // Disable NavMeshAgent
         player.GetComponent<PlayerController>().controlingLife = true;
@@ -268,6 +286,11 @@ public class NPCController : MonoBehaviour
     {
         if (player.GetComponent<PlayerController>().controlingLife)
         {
+            check = false;
+            GameObject newGameObject = Instantiate(PossesOutVFX, VFXPos.position - new Vector3(0.2f,1f,0), Quaternion.identity);
+            newGameObject.transform.SetParent(transform);
+            audioSource.PlayOneShot(PlayerPossesSFX);
+            //audioSource.PlayOneShot(PossesdSFX);
             animator.SetLayerWeight(1, 0);
             isControlled = false;
             Consume(false);
@@ -278,6 +301,7 @@ public class NPCController : MonoBehaviour
             agent.enabled = true; // Re-enable NavMeshAgent
             player.GetComponent<SphereCollider>().isTrigger = true;
             abilities.ReleaseAbility();
+            sprite.GetComponent<SpriteRenderer>().flipX = true;
             LeanTween.delayedCall(1f, () => { player.GetComponent<SphereCollider>().isTrigger = false; });
             if(!Alert)
                 StartCoroutine(ShortStun());
@@ -324,14 +348,15 @@ public class NPCController : MonoBehaviour
         {
             rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
             animator.SetBool("IsWalking", true);
-
-            if(moveDirection.x < 0 || moveDirection.z >0)
+            FootaudioSource.UnPause();
+            if (moveDirection.x < 0 || moveDirection.z >0)
                 sprite.GetComponent<SpriteRenderer>().flipX = true;
             if(moveDirection.x > 0 || moveDirection.z < 0)
                 sprite.GetComponent<SpriteRenderer>().flipX = false;
         }
         else
         {
+           FootaudioSource.Pause();
             animator.SetBool("IsWalking", false);
         }
        
