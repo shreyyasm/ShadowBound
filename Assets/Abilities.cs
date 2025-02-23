@@ -25,6 +25,8 @@ public class Abilities : MonoBehaviour
     public bool isDashing = false;
     private float dashTime;
     private float lastDashTime;
+    public GameObject DashTrail;
+    public AudioClip DashSFX;
 
     [Header("Move Ability")]
     public Transform grabPoint; // Where the object will be held
@@ -64,7 +66,8 @@ public class Abilities : MonoBehaviour
         Playerabilities[1].AbilityUnlocked = MoveObjects; 
         Playerabilities[2].AbilityUnlocked = RotateObjects;
         Playerabilities[3].AbilityUnlocked = TeleportPlayer; 
-        Playerabilities[4].AbilityUnlocked = DistanceConsume; 
+        Playerabilities[4].AbilityUnlocked = DistanceConsume;
+        LoadAbilityCards();
     }
 
     private void Update()
@@ -128,6 +131,8 @@ public class Abilities : MonoBehaviour
             if (Input.GetMouseButtonDown(1) && Time.time > lastDashTime + dashCooldown && NPCController.moveDirection != Vector3.zero)
             {
                 isDashing = true;
+                DashTrail.SetActive(true);
+                audioSource.PlayOneShot(DashSFX);
                 usingAbility = true;
                 dashTime = Time.time + dashDuration;
                 lastDashTime = Time.time;
@@ -140,6 +145,7 @@ public class Abilities : MonoBehaviour
                 {
                     isDashing = false;
                     usingAbility = false;
+                    DashTrail.SetActive(false);
                 }
                     
             }
@@ -450,8 +456,8 @@ public class Abilities : MonoBehaviour
         public bool AbilityUnlocked;
         public bool AbilityState;
     }
-
     public List<Transform> abilityCards; // Drag UI Card Transforms in Inspector
+    public RectTransform cardContainer; // Assign the parent container (a UI Panel)
     public Vector3 selectedScale = new Vector3(1.2f, 1.2f, 1f);
     public Vector3 normalScale = Vector3.one;
     private int previousAbilityIndex = -1;
@@ -499,35 +505,69 @@ public class Abilities : MonoBehaviour
         }
 
     }
-   public void UpdateCardUI()
+    public void LoadAbilityCards()
     {
-        // Adjust scales & positions dynamically
+        for(int i = 0;i < Playerabilities.Count;i++)
+        {
+            if(Playerabilities[i].AbilityUnlocked)
+            {
+                abilityCards[i].gameObject.SetActive(true);
+            }
+        }
+    }
+    public RectTransform container; // Assign the UI container in the Inspector
+    public void UpdateCardUI()
+    {
+        // List to store only active (unlocked) ability cards
+        List<Transform> activeCards = new List<Transform>();
+
+        for (int i = 0; i < Playerabilities.Count; i++)
+        {
+            if (Playerabilities[i].AbilityUnlocked && i < abilityCards.Count)
+            {
+                activeCards.Add(abilityCards[i]);
+            }
+        }
+
+        if (activeCards.Count == 0) return; // Exit if no active cards
+
+        // Calculate total width of active cards
         float totalWidth = 0f;
-        for (int i = 0; i < abilityCards.Count; i++)
+        List<float> cardWidths = new List<float>();
+
+        for (int i = 0; i < activeCards.Count; i++)
         {
             bool isSelected = (i == currentAbilityIndex);
             Vector3 targetScale = isSelected ? selectedScale : normalScale;
 
-            // Apply smooth scale transition
-            abilityCards[i].localScale = Vector3.Lerp(abilityCards[i].localScale, targetScale, Time.deltaTime * 10f);
+            // Smoothly transition scale
+            activeCards[i].localScale = Vector3.Lerp(activeCards[i].localScale, targetScale, Time.deltaTime * 10f);
 
-            // Compute new position offsets
-            float offset = isSelected ? selectedScale.x : normalScale.x;
-            totalWidth += offset * spacing;
+            // Store width for alignment calculation
+            float cardWidth = (isSelected ? selectedScale.x : normalScale.x) * activeCards[i].GetComponent<RectTransform>().sizeDelta.x;
+            cardWidths.Add(cardWidth);
+            totalWidth += cardWidth;
         }
 
-        // Center the ability cards dynamically
-        float startX = -totalWidth / 2f;
-        for (int i = 0; i < abilityCards.Count; i++)
+        // Add spacing between cards
+        totalWidth += (activeCards.Count - 1) * spacing;
+
+        // Align cards to the right of the container
+        float containerRightEdge = container.rect.width / 2f;
+        float startX = containerRightEdge - totalWidth;
+
+        for (int i = 0; i < activeCards.Count; i++)
         {
             bool isSelected = (i == currentAbilityIndex);
-            float offset = isSelected ? selectedScale.x : normalScale.x;
-            Vector3 targetPosition = new Vector3(startX + offset * spacing / 2, abilityCards[i].localPosition.y, abilityCards[i].localPosition.z);
+            float cardWidth = cardWidths[i];
 
-            // Apply smooth position transition
-            abilityCards[i].localPosition = Vector3.Lerp(abilityCards[i].localPosition, targetPosition, Time.deltaTime * 10f);
+            // Compute target position
+            Vector3 targetPosition = new Vector3(startX + cardWidth / 2, activeCards[i].localPosition.y, activeCards[i].localPosition.z);
 
-            startX += offset * spacing;
+            // Smoothly move the cards
+            activeCards[i].localPosition = Vector3.Lerp(activeCards[i].localPosition, targetPosition, Time.deltaTime * 10f);
+
+            startX += cardWidth + spacing; // Move to next position
         }
     }
     

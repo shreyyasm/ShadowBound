@@ -18,7 +18,7 @@ MonoBehaviour:
   RoamRadius: 10
   RoamDelay: 2
   MoveSpeed: 12
-  DashSpeed: 50
+  DashSpeed: 70
   visionRange: 6.5
   visionAngle: 55
   chaseSpeed: 12

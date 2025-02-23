@@ -263,7 +263,7 @@ public class NPCController : MonoBehaviour
         audioSource.PlayOneShot(PlayerPossesSFX);
         interactSign.SetActive(false);
         Instantiate(PlayerPossesVFX, playerController.VFXPos.position, Quaternion.identity);
-
+        animator.SetBool("IsWalking",false);
         yield return new WaitForSeconds(0.8f);
         //playerController.animator.SetBool("IsConsuming", false);
         playerController.animator.SetBool("IsWalking", true);
