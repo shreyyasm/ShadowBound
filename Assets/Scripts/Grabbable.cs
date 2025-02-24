@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Grabbable : MonoBehaviour
 {
+    public GameObject InteractSign;
     // Start is called before the first frame update
     void Start()
     {

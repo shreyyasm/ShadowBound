@@ -121,7 +121,7 @@ public class NPCController : MonoBehaviour
         abilities.MoveObjects = EnemyStats.MoveObjects;
         abilities.RotateObjects = EnemyStats.RotateObjects;
         abilities.TeleportPlayer = EnemyStats.TeleportPlayer;
-      
+        abilities.DistanceConsume = EnemyStats.DistanceConsume;
 
 
     }
@@ -151,18 +151,18 @@ public class NPCController : MonoBehaviour
         //interactSign.transform.rotation = Quaternion.Euler(30, 45, 0);
         sprite.transform.rotation = Quaternion.Euler(30, 45, 0);
         //Control
-        if (interacting && Input.GetMouseButtonDown(0) && !isStunned && !isControlled && !abilities.usingAbility && !check)
+        if (interacting && Input.GetMouseButtonDown(1) && !isStunned && !isControlled && !abilities.usingAbility && !check)
         {
             TakeControl();
         }
-        else if(!canSwitch && !interacting && Input.GetMouseButtonDown(0) && isControlled )
+        else if(!canSwitch && !interacting && Input.GetMouseButtonDown(1) && isControlled )
         {
             ReleaseControl();
             Debug.Log("Release" + gameObject.name);
         }
 
 
-        if (canSwitch && Input.GetMouseButtonDown(0) && isControlled && !abilities.usingAbility)
+        if (canSwitch && Input.GetMouseButtonDown(1) && isControlled && !abilities.usingAbility)
         {
            
             SwitchControl();

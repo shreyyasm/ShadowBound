@@ -1,6 +1,8 @@
+using EPOOutline;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -32,10 +34,18 @@ public class Abilities : MonoBehaviour
     public Transform grabPoint; // Where the object will be held
     public float grabRange = 3f; // Distance for raycast detection
     public LayerMask grabbableLayer; // Define what objects can be grabbed
-    private Rigidbody grabbedObject;
+    public GameObject grabbedObject;
     private FixedJoint grabJoint;
     public float grabHeightOffset = 1.5f;
     public bool MovingObject;
+    public GameObject MoveVFX;
+    public Transform VFXPos;
+    public AudioSource MoveBeamSFX;
+    public AudioClip beamStart;
+    public AudioClip beamStop;
+    private Hovl_Laser LaserScript;
+    private Hovl_Laser2 LaserScript2;
+    public bool canMove;
 
     [Header("Rotate Ability")]
     public float rotationSnapAngle = 90f;
@@ -46,6 +56,10 @@ public class Abilities : MonoBehaviour
     public float teleportCooldown = 3f;   
     public bool canTeleport = true;
     public Transform teleportIndicator; // Child object to indicate teleport position
+    public AudioClip TeleportInSFX;
+    public AudioClip TeleportOutSFX;
+    public AudioClip TeleportOnSFX;
+    public GameObject TeleportVFX;
 
     [Header("Distant Consume Ability")]
     public float snapThreshold = 1.5f; // Distance for snapping to enemy
@@ -76,7 +90,7 @@ public class Abilities : MonoBehaviour
         SelectEnemyWithMouse();   
         UpdateTeleportIndicator();
 
-        if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !isRotating && Playerabilities[3].AbilityState)
+        if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !isRotating && Playerabilities[3].AbilityState)
         {
             StartCoroutine(Teleport());
         }
@@ -90,20 +104,23 @@ public class Abilities : MonoBehaviour
                 HandleDash();
         }
 
-        if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !isRotating && Playerabilities[1].AbilityState)
+        if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !isRotating && Playerabilities[1].AbilityState && canMove)
         {
-            if (grabbedObject == null)
-                TryGrabObject(false);
+            if (!MovingObject)
+            {
+                GrabObject(false);
+            }
 
             else
                 ReleaseObject();
         }
 
-        if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !MovingObject && Playerabilities[2].AbilityState)
+        if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !MovingObject && Playerabilities[2].AbilityState)
         {
-            if (grabbedObject == null)
-                TryGrabObject(true);
-
+            if (!isRotating)
+            {
+                GrabObject(true);
+            }
             else
                 ReleaseObject();
         }
@@ -128,7 +145,7 @@ public class Abilities : MonoBehaviour
     {
         if (Dash)
         {
-            if (Input.GetMouseButtonDown(1) && Time.time > lastDashTime + dashCooldown && NPCController.moveDirection != Vector3.zero)
+            if (Input.GetMouseButtonDown(0) && Time.time > lastDashTime + dashCooldown && NPCController.moveDirection != Vector3.zero)
             {
                 isDashing = true;
                 DashTrail.SetActive(true);
@@ -152,131 +169,40 @@ public class Abilities : MonoBehaviour
         }
 
     }
-    
-    void TryGrabObject(bool RotationValue)
+    private GameObject Instance;
+    public void GrabObject(bool value)
     {
-
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, grabRange, grabbableLayer))
+        if (grabbedObject != null && !MovingObject)
         {
-            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
-            isRotating = RotationValue;
-           
+            audioSource.PlayOneShot(beamStart,0.5f);
+            isRotating = value;
+            MoveBeamSFX.Play();
+            Destroy(Instance);
+            Instance = Instantiate(MoveVFX, VFXPos.position, Quaternion.identity);
+            Instance.transform.parent = transform;
+            LaserScript = Instance.GetComponent<Hovl_Laser>();
+            LaserScript2 = Instance.GetComponent<Hovl_Laser2>();
+
             if (!isRotating)
             {
-                if (objectRb != null)
-                {
-                    MovingObject = true;
-                    grabbedObject = objectRb;
-                    usingAbility = true;
-                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
-                    // Attach object using FixedJoint
-                    grabJoint = gameObject.AddComponent<FixedJoint>();
-                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
-                    grabJoint.connectedBody = grabbedObject;
-                    grabJoint.breakForce = Mathf.Infinity;
-                    grabJoint.breakTorque = Mathf.Infinity;
+                
 
-                    // Disable gravity for smoother holding
-                    grabbedObject.useGravity = false;
-                }
-            }
-            else
-            {
-                if (objectRb != null)
-                    grabbedObject = objectRb;
-               
-            }
-        }
-        if (Physics.Raycast(transform.position, -transform.forward, out hit, grabRange, grabbableLayer))
-        {
-            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
-            isRotating = RotationValue;
-            if (!isRotating)
-            {
-                if (objectRb != null)
-                {
-                    MovingObject = true;
-                    grabbedObject = objectRb;
-                    usingAbility = true;
-                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
-                    // Attach object using FixedJoint
-                    grabJoint = gameObject.AddComponent<FixedJoint>();
-                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
-                    grabJoint.connectedBody = grabbedObject;
-                    grabJoint.breakForce = Mathf.Infinity;
-                    grabJoint.breakTorque = Mathf.Infinity;
+                MovingObject = true;
+                usingAbility = true;
+                grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
 
-                    // Disable gravity for smoother holding
-                    grabbedObject.useGravity = false;
-                }
-            }
-            else
-            {
-                if (objectRb != null)
-                    grabbedObject = objectRb;
+                // Attach object using FixedJoint
+                grabJoint = gameObject.AddComponent<FixedJoint>();
+                grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+                grabJoint.connectedBody = grabbedObject.GetComponent<Rigidbody>();
+                grabJoint.breakForce = Mathf.Infinity;
+                grabJoint.breakTorque = Mathf.Infinity;
+
+                // Disable gravity for smoother holding
+                grabbedObject.GetComponent<Rigidbody>().useGravity = false;
 
             }
-        }
-        if (Physics.Raycast(transform.position, RayPos.transform.forward, out hit, grabRange, grabbableLayer))
-        {
-            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
-            isRotating = RotationValue;
-            if (!isRotating)
-            {
-                if (objectRb != null)
-                {
-                    MovingObject = true;
-                    grabbedObject = objectRb;
-                    usingAbility = true;
-                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
-                    // Attach object using FixedJoint
-                    grabJoint = gameObject.AddComponent<FixedJoint>();
-                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
-                    grabJoint.connectedBody = grabbedObject;
-                    grabJoint.breakForce = Mathf.Infinity;
-                    grabJoint.breakTorque = Mathf.Infinity;
-
-                    // Disable gravity for smoother holding
-                    grabbedObject.useGravity = false;
-                }
-            }
-            else
-            {
-                if (objectRb != null)
-                    grabbedObject = objectRb;
-
-            }
-        }
-        if (Physics.Raycast(transform.position, -RayPos.transform.forward, out hit, grabRange, grabbableLayer))
-        {
-            Rigidbody objectRb = hit.collider.GetComponent<Rigidbody>();
-            isRotating = RotationValue;
-            if (!isRotating)
-            {
-                if (objectRb != null)
-                {
-                    MovingObject = true;
-                    grabbedObject = objectRb;
-                    usingAbility = true;
-                    grabbedObject.transform.position = grabPoint.position + Vector3.up * grabHeightOffset;
-                    // Attach object using FixedJoint
-                    grabJoint = gameObject.AddComponent<FixedJoint>();
-                    grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
-                    grabJoint.connectedBody = grabbedObject;
-                    grabJoint.breakForce = Mathf.Infinity;
-                    grabJoint.breakTorque = Mathf.Infinity;
-
-                    // Disable gravity for smoother holding
-                    grabbedObject.useGravity = false;
-                }
-            }
-            else
-            {
-                if (objectRb != null)
-                    grabbedObject = objectRb;
-
-            }
+                
         }
     }
 
@@ -293,12 +219,15 @@ public class Abilities : MonoBehaviour
                 SnapRotate(Vector3.up);
             if (Input.GetKeyDown(KeyCode.D))
                 SnapRotate(-Vector3.up);
+
+          
         }
     }
 
     void SnapRotate(Vector3 axis)
     {
         grabbedObject.transform.Rotate(axis, rotationSnapAngle, Space.World);
+        grabbedObject.GetComponent<Grabbable>().InteractSign.transform.rotation = Quaternion.Euler(30, 45, 0);
     }
 
 
@@ -306,9 +235,15 @@ public class Abilities : MonoBehaviour
     {
         if (grabbedObject != null)
         {
+            audioSource.PlayOneShot(beamStop,0.5f);
+            MoveBeamSFX.Stop();
+            if (LaserScript) LaserScript.DisablePrepare();
+            if (LaserScript2) LaserScript2.DisablePrepare();
+            Destroy(Instance);
             Destroy(grabJoint); // Remove FixedJoint
-            grabbedObject.useGravity = true; // Restore gravity
+            grabbedObject.GetComponent<Rigidbody>().useGravity = true; // Restore gravity
             grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+            grabbedObject.GetComponent<Grabbable>().InteractSign.SetActive(false);
             isRotating = false;
             MovingObject = false;
             grabbedObject = null;
@@ -317,21 +252,6 @@ public class Abilities : MonoBehaviour
     }
     void OnDrawGizmos()
     {
-        if(Playerabilities[2].AbilityState || Playerabilities[1].AbilityState)
-        {
-            // Draw raycast in the editor
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(transform.position, transform.forward * grabRange);
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(transform.position, -transform.forward * grabRange);
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(transform.position, RayPos.transform.forward * grabRange);
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(transform.position, -RayPos.transform.forward * grabRange);
-        }
         if (Playerabilities[3].AbilityState)
         {
             Gizmos.color = Color.blue;
@@ -364,20 +284,24 @@ public class Abilities : MonoBehaviour
         if (!canTeleport) yield break;
         canTeleport = false;
         ///animator.SetTrigger("TeleportStart");
-
+        Instantiate(TeleportVFX, teleportIndicator.position + new Vector3(0, 1f, 0), Quaternion.identity);
+        audioSource.PlayOneShot(TeleportInSFX, 1f);
         yield return new WaitForSeconds(1f); // Wait for animation to finish
-
+       
         // Stop any movement before teleporting
         NPCController.rb.velocity = Vector3.zero;
         NPCController.rb.isKinematic = true; // Temporarily disable physics to avoid interference
 
         transform.position = teleportIndicator.position; // Move player instantly
+        teleportIndicator.gameObject.SetActive(false);
 
         yield return new WaitForFixedUpdate(); // Ensure the physics update happens after teleport
-
+        audioSource.PlayOneShot(TeleportOutSFX, 0.5f);
         NPCController.rb.isKinematic = false; // Re-enable physics
 
         yield return new WaitForSeconds(teleportCooldown);
+        audioSource.PlayOneShot(TeleportOnSFX, 1f);
+        teleportIndicator.gameObject.SetActive(true);
         canTeleport = true;
     }
     void UpdateTeleportIndicator()
@@ -388,6 +312,7 @@ public class Abilities : MonoBehaviour
 
             if (canTeleport)
             {
+                teleportIndicator.gameObject.SetActive(true);
                 Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 Plane playerPlane = new Plane(Vector3.up, transform.position);
                 if (playerPlane.Raycast(mouseRay, out float hitDistance))
@@ -396,10 +321,13 @@ public class Abilities : MonoBehaviour
                     Vector3 direction = (mousePosition - transform.position).normalized;
                     teleportIndicator.position = transform.position + direction * teleportRadius;
                 }
+                
             }
         }
-            
-       
+        else
+            teleportIndicator.gameObject.SetActive(false);
+
+
     }
    
     void SelectEnemyWithMouse()
@@ -424,7 +352,7 @@ public class Abilities : MonoBehaviour
                     closestDistance = distanceToMouse;
                     closestEnemy = enemy.transform;
                     NPCController.temp = closestEnemy.gameObject;
-                    if (Input.GetMouseButtonDown(1) && NPCController.isControlled && !isRotating && Playerabilities[4].AbilityState)
+                    if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !isRotating && Playerabilities[4].AbilityState)
                     {
                         NPCController.SwitchControl();
                     }
@@ -477,11 +405,14 @@ public class Abilities : MonoBehaviour
             do
             {
                 newIndex = (newIndex + (scroll > 0 ? 1 : -1) + Playerabilities.Count) % Playerabilities.Count;
-                audioSource.PlayOneShot(abilityChangeSound);
+                audioSource.PlayOneShot(abilityChangeSound,0.5f); 
+
             } while (!Playerabilities[newIndex].AbilityUnlocked);
 
             // Update ability state
             currentAbilityIndex = newIndex;
+           
+
             // Enable selected ability
             Playerabilities[currentAbilityIndex].AbilityState = true;
 
@@ -492,7 +423,7 @@ public class Abilities : MonoBehaviour
                 {
                     abilityCards[previousAbilityIndex].localScale = normalScale;
                 }
-
+                
                 // Scale up new selected card
                 if (newIndex < abilityCards.Count)
                 {
@@ -570,5 +501,59 @@ public class Abilities : MonoBehaviour
             startX += cardWidth + spacing; // Move to next position
         }
     }
-    
+    private void OnTriggerEnter(Collider other)
+    {
+
+        if (other.CompareTag("Grabble") && NPCController.isControlled && Playerabilities[1].AbilityState)
+        {
+            canMove = true;
+            grabbedObject = other.gameObject;
+            other.GetComponent<Grabbable>().InteractSign.SetActive(true);
+        }
+        if (other.CompareTag("Grabble") && NPCController.isControlled && Playerabilities[2].AbilityState)
+        {
+            canMove = true;
+            grabbedObject = other.gameObject;
+            other.GetComponent<Grabbable>().InteractSign.SetActive(true);
+        }
+
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+
+        if (other.CompareTag("Grabble") && NPCController.isControlled && Playerabilities[1].AbilityState)
+        {
+            canMove = true;
+            grabbedObject = other.gameObject;
+            other.GetComponent<Grabbable>().InteractSign.SetActive(true);
+        }
+        if (other.CompareTag("Grabble") && NPCController.isControlled && Playerabilities[2].AbilityState)
+        {
+            canMove = true;
+            grabbedObject = other.gameObject;
+            other.GetComponent<Grabbable>().InteractSign.SetActive(true);
+        }
+        if (other.CompareTag("Grabble") && NPCController.isControlled && !Playerabilities[1].AbilityState &&  !Playerabilities[2].AbilityState)
+        {
+            canMove = false;
+            grabbedObject = null;
+            other.GetComponent<Grabbable>().InteractSign.SetActive(false);
+
+        }
+
+
+    }
+    private void OnTriggerExit(Collider other)
+    {
+
+        if (other.CompareTag("Grabble") && !usingAbility)
+        {
+            canMove = false;
+            grabbedObject = null;
+            other.GetComponent<Grabbable>().InteractSign.SetActive(false);
+
+        }
+       
+    }
 }

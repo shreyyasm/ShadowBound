@@ -12,6 +12,7 @@ TagManager:
   - Reflector
   - Receiver
   - FxTemporaire
+  - Grabble
   layers:
   - Default
   - TransparentFX

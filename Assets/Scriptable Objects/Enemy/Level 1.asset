@@ -31,3 +31,4 @@ MonoBehaviour:
   MoveObjects: 1
   RotateObjects: 1
   TeleportPlayer: 1
+  DistanceConsume: 0

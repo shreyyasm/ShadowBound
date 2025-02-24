@@ -37,6 +37,7 @@ public class EnemyStats : ScriptableObject
     public bool MoveObjects;
     public bool RotateObjects;
     public bool TeleportPlayer;
+    public bool DistanceConsume;
 
   
 
