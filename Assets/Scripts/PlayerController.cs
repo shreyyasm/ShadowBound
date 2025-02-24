@@ -147,25 +147,32 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
+ 
+    private NPCController closestEnemy;
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isStunned)
         {
-            other.GetComponent<NPCController>().interacting = true;
-            other.GetComponent<NPCController>().interactSign.SetActive(true);
+            NPCController[] enemies = FindObjectsOfType<NPCController>(); // Get all enemies
+            float minDistance = float.MaxValue;
+            NPCController nearestEnemy = null;
 
-        }
-        if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
-        {
-            other.GetComponent<NPCController>().canSwitch = true;
-            other.GetComponent<NPCController>().temp = other.gameObject;
-          
+            foreach (NPCController enemy in enemies)
+            {
+                if (enemy != null && enemy != this && !enemy.isControlled)
+                {
+                    float distance = Vector3.Distance(transform.position, enemy.transform.position);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nearestEnemy = enemy;
+                    }
+                }
+            }
 
-        }
-        if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled)
-        {
-            other.GetComponent<NPCController>().interacting = true;
+            closestEnemy = nearestEnemy; // Assign the closest enemy
+            closestEnemy.interacting = true;
+            closestEnemy.interactSign.SetActive(true);
         }
     }
 
@@ -176,30 +183,11 @@ public class PlayerController : MonoBehaviour
         {
             other.GetComponent<NPCController>().interacting = false;
             other.GetComponent<NPCController>().interactSign.SetActive(false);
-
         }
-        if (other.CompareTag("Enemy") && other.GetComponent<NPCController>().isControlled)
+        if (closestEnemy != null && other.gameObject == closestEnemy.gameObject)
         {
-
-            other.GetComponent<NPCController>().canSwitch = false;
-            other.GetComponent<NPCController>().temp = null;
-
-
-        }
-        if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled)
-        {
-            other.GetComponent<NPCController>().interacting = false;
-            other.GetComponent<NPCController>().interactSign.SetActive(false);
+            closestEnemy = null;
         }
     }
 
-    private void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-            
-            other.gameObject.GetComponent<NPCController>().Caught = true;
-            other.gameObject.GetComponent<NPCController>().ChangeSpeed();
-        }
-    }
 }

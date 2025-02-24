@@ -2,9 +2,11 @@ using EPOOutline;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class Abilities : MonoBehaviour
 {
@@ -66,6 +68,7 @@ public class Abilities : MonoBehaviour
     public LayerMask enemyLayer;
     private Transform controlledEnemy;
     private Transform snappedEnemy;
+    public GameObject BigViewCamera;
 
     [Header("Reference")]
     public Animator animator;
@@ -86,9 +89,13 @@ public class Abilities : MonoBehaviour
 
     private void Update()
     {
-        UpdateCardUI();
-        SelectEnemyWithMouse();   
+        SelectEnemyWithMouse();
         UpdateTeleportIndicator();
+
+        if (NPCController.isControlled)
+            UpdateCardUI();
+
+        
 
         if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !isRotating && Playerabilities[3].AbilityState)
         {
@@ -286,7 +293,7 @@ public class Abilities : MonoBehaviour
         ///animator.SetTrigger("TeleportStart");
         Instantiate(TeleportVFX, teleportIndicator.position + new Vector3(0, 1f, 0), Quaternion.identity);
         audioSource.PlayOneShot(TeleportInSFX, 1f);
-        yield return new WaitForSeconds(1f); // Wait for animation to finish
+        yield return new WaitForSeconds(1.2f); // Wait for animation to finish
        
         // Stop any movement before teleporting
         NPCController.rb.velocity = Vector3.zero;
@@ -306,7 +313,7 @@ public class Abilities : MonoBehaviour
     }
     void UpdateTeleportIndicator()
     {
-        if (Playerabilities[3].AbilityState)
+        if (Playerabilities[3].AbilityState && NPCController.isControlled)
         {
             if (teleportIndicator == null) return;
 
@@ -329,51 +336,51 @@ public class Abilities : MonoBehaviour
 
 
     }
-   
+    GameObject enemy;
     void SelectEnemyWithMouse()
     {
-        if(Playerabilities[4].AbilityState)
+        if(NPCController.isControlled)
         {
-            Collider[] enemies = Physics.OverlapSphere(transform.position, Mathf.Infinity, enemyLayer);
-            Transform closestEnemy = null;
-            float closestDistance = float.MaxValue;
-
-            Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Plane plane = new Plane(Vector3.up, Vector3.zero);
-            if (!plane.Raycast(mouseRay, out float enter)) return;
-
-            Vector3 mouseWorldPos = mouseRay.GetPoint(enter);
-
-            foreach (var enemy in enemies)
+            if (Playerabilities[4].AbilityState)
             {
-                float distanceToMouse = Vector3.Distance(mouseWorldPos, enemy.transform.position);
-                if (distanceToMouse < snapThreshold && distanceToMouse < closestDistance)
+
+                BigViewCamera.SetActive(true);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit, Mathf.Infinity, enemyLayer))
                 {
-                    closestDistance = distanceToMouse;
-                    closestEnemy = enemy.transform;
-                    NPCController.temp = closestEnemy.gameObject;
-                    if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !isRotating && Playerabilities[4].AbilityState)
+
+                    enemy = hit.collider.gameObject;
+                    if (!enemy.gameObject.GetComponent<NPCController>().isControlled)
                     {
-                        NPCController.SwitchControl();
+                        enemy.gameObject.GetComponent<NPCController>().interactSign.SetActive(true);
+
+                        NPCController.temp = enemy.gameObject;
+                        if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !isRotating && Playerabilities[4].AbilityState)
+                        {
+                            NPCController.SwitchControl();
+                        }
                     }
+
                 }
-            }
-
-            if (closestEnemy != snappedEnemy)
-            {
-                snappedEnemy = closestEnemy;
-            }
-
-            // **Break snap if the mouse moves away**
-            if (snappedEnemy != null)
-            {
-                float distanceToMouse = Vector3.Distance(mouseWorldPos, snappedEnemy.position);
-                if (distanceToMouse > snapThreshold * 1.5f) // Add buffer to prevent flickering
+                else
                 {
-                    snappedEnemy = null;
+                    if (enemy != null)
+                        enemy.gameObject.GetComponent<NPCController>().interactSign.SetActive(false);
+
+                    NPCController.temp = null;
+                    enemy = null;
                 }
+
             }
+            if(!Playerabilities[4].AbilityState && NPCController.isControlled)
+            {
+                BigViewCamera.SetActive(false);
+            }
+
         }
+
 
     }
 
@@ -385,12 +392,27 @@ public class Abilities : MonoBehaviour
         public bool AbilityState;
     }
     public List<Transform> abilityCards; // Drag UI Card Transforms in Inspector
-    public RectTransform cardContainer; // Assign the parent container (a UI Panel)
     public Vector3 selectedScale = new Vector3(1.2f, 1.2f, 1f);
     public Vector3 normalScale = Vector3.one;
     private int previousAbilityIndex = -1;
     public float spacing = 100f; // Adjust for better alignment
     public AudioClip abilityChangeSound;
+
+    public void ResetAbilities()
+    {
+        // Disable all abilities
+        for (int i = 0; i < Playerabilities.Count; i++)
+            Playerabilities[i].AbilityState = false;
+
+
+        currentAbilityIndex = 0;
+        Playerabilities[0].AbilityState = true;
+
+        for (int i = 0; i < abilityCards.Count; i++)
+            abilityCards[i].transform.position = CardsResetPos.position;
+        
+
+    }
     void HandleAbilitySelection()
     {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -405,8 +427,9 @@ public class Abilities : MonoBehaviour
             do
             {
                 newIndex = (newIndex + (scroll > 0 ? 1 : -1) + Playerabilities.Count) % Playerabilities.Count;
-                audioSource.PlayOneShot(abilityChangeSound,0.5f); 
+                audioSource.PlayOneShot(abilityChangeSound,0.5f);
 
+               
             } while (!Playerabilities[newIndex].AbilityUnlocked);
 
             // Update ability state
@@ -434,7 +457,6 @@ public class Abilities : MonoBehaviour
                 currentAbilityIndex = newIndex;
             }
         }
-
     }
     public void LoadAbilityCards()
     {
@@ -447,20 +469,27 @@ public class Abilities : MonoBehaviour
         }
     }
     public RectTransform container; // Assign the UI container in the Inspector
+    public Transform CardsResetPos;
+
     public void UpdateCardUI()
     {
-        // List to store only active (unlocked) ability cards
+        // List to store only active (unlocked) ability cards and their original indices
         List<Transform> activeCards = new List<Transform>();
+        List<int> activeIndices = new List<int>(); // Store original indices
 
         for (int i = 0; i < Playerabilities.Count; i++)
         {
             if (Playerabilities[i].AbilityUnlocked && i < abilityCards.Count)
             {
                 activeCards.Add(abilityCards[i]);
+                activeIndices.Add(i); // Keep track of original index
             }
         }
 
         if (activeCards.Count == 0) return; // Exit if no active cards
+
+        // Find the correct index of the selected ability within activeCards
+        int selectedActiveIndex = activeIndices.IndexOf(currentAbilityIndex);
 
         // Calculate total width of active cards
         float totalWidth = 0f;
@@ -468,7 +497,7 @@ public class Abilities : MonoBehaviour
 
         for (int i = 0; i < activeCards.Count; i++)
         {
-            bool isSelected = (i == currentAbilityIndex);
+            bool isSelected = (i == selectedActiveIndex); // Check against mapped index
             Vector3 targetScale = isSelected ? selectedScale : normalScale;
 
             // Smoothly transition scale
@@ -489,7 +518,7 @@ public class Abilities : MonoBehaviour
 
         for (int i = 0; i < activeCards.Count; i++)
         {
-            bool isSelected = (i == currentAbilityIndex);
+            bool isSelected = (i == selectedActiveIndex);
             float cardWidth = cardWidths[i];
 
             // Compute target position
@@ -501,6 +530,7 @@ public class Abilities : MonoBehaviour
             startX += cardWidth + spacing; // Move to next position
         }
     }
+   
     private void OnTriggerEnter(Collider other)
     {
 

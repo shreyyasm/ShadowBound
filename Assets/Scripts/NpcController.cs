@@ -31,7 +31,7 @@ public class NPCController : MonoBehaviour
     public Transform[] patrolPoints; // List of patrol points
     private int currentPatrolIndex = 0;
     private bool isChasing = false;
-    private bool isStunned = false;
+    public bool isStunned = false;
     public bool isSearching = false;
 
     [Header("Vision Settings")]
@@ -45,6 +45,8 @@ public class NPCController : MonoBehaviour
     public float chaseSpeed = 4f;
     public float normalSpeed = 2f;
     public float alertDelay = 2f;
+    public AudioClip alertSound;
+    public GameObject alertSign;
 
     [Header("Control & Stun")]
     public float controlTime = 5f; // Time before NPC gets stunned if controlled
@@ -144,6 +146,7 @@ public class NPCController : MonoBehaviour
         MoveToNextPatrol();
     }
     bool check;
+ 
     void Update()
     {
         
@@ -193,7 +196,8 @@ public class NPCController : MonoBehaviour
             }
             return;
         }
-
+        if (Caught)
+            agent.SetDestination(player.transform.position);
         //AI
         if (!isControlled)
         {
@@ -218,8 +222,7 @@ public class NPCController : MonoBehaviour
             StartCoroutine(AlertAndChase());
         }
 
-        if(Caught)
-            agent.SetDestination(player.transform.position);
+       
      
         if(!isControlled)
         {
@@ -256,7 +259,7 @@ public class NPCController : MonoBehaviour
     IEnumerator TakeControlEnum()
     {
         //playerController.animator.SetBool("IsConsuming", true);
-       
+      
         agent.isStopped = true;
         check = true;
         player.SetActive(false); // Hide player
@@ -264,7 +267,12 @@ public class NPCController : MonoBehaviour
         interactSign.SetActive(false);
         Instantiate(PlayerPossesVFX, playerController.VFXPos.position, Quaternion.identity);
         animator.SetBool("IsWalking",false);
+
         yield return new WaitForSeconds(0.8f);
+
+        abilities.ResetAbilities();
+        abilities.BigViewCamera.SetActive(false);
+        abilities.container.gameObject.SetActive(true);
         //playerController.animator.SetBool("IsConsuming", false);
         playerController.animator.SetBool("IsWalking", true);
         audioSource.PlayOneShot(PossesdSFX);
@@ -286,8 +294,11 @@ public class NPCController : MonoBehaviour
     {
         if (playerController.Levelindex >= LevelIndex)
         {
+            abilities.currentAbilityIndex = 0;
+            
             ReleaseControl();
             temp.GetComponent<NPCController>().TakeControl();
+          
         }
            
 
@@ -297,6 +308,8 @@ public class NPCController : MonoBehaviour
     {
         if (player.GetComponent<PlayerController>().controlingLife)
         {
+            abilities.container.gameObject.SetActive(false);
+            
             FootaudioSource.Pause();
             check = false;
             GameObject newGameObject = Instantiate(PossesOutVFX, VFXPos.position - new Vector3(0.2f,1f,0), Quaternion.identity);
@@ -377,6 +390,7 @@ public class NPCController : MonoBehaviour
     } 
     private IEnumerator AlertAndChase()
     {
+        audioSource.PlayOneShot(alertSound);
         isChasing = true;
         if(!Caught)
             agent.isStopped = true;
@@ -398,11 +412,18 @@ public class NPCController : MonoBehaviour
     }
     private IEnumerator StunNPC()
     {
+        audioSource.PlayOneShot(alertSound);
         isStunned = true;
         agent.isStopped = true;
+        abilities.container.gameObject.SetActive(false);
+        abilities.ResetAbilities();
+        abilities.BigViewCamera.SetActive(false);
+        alertSign.SetActive(true);
         yield return new WaitForSeconds(stunDuration);
+        animator.SetBool("IsWalking", true);
         agent.isStopped = false;
         StartCoroutine(SearchForPlayer());
+       
     }
     public IEnumerator ShortStun()
     {
@@ -434,6 +455,7 @@ public class NPCController : MonoBehaviour
 
     private IEnumerator SearchForPlayer()
     {
+       
         isSearching = true;
         agent.speed = chaseSpeed;
         float elapsedTime = 0;
@@ -442,7 +464,8 @@ public class NPCController : MonoBehaviour
         {
             if (CheckPlayerInVision())
             {
-                //StartCoroutine(AlertAndChase());
+                
+                StartCoroutine(AlertAndChase());
                 isSearching = false;
                 yield break;
             }
@@ -454,7 +477,7 @@ public class NPCController : MonoBehaviour
         isSearching = false;
         isStunned = false;
         controlTimer = controlTime;
-
+        alertSign.SetActive(false);
 
     }
     public void ChangeSpeed()
@@ -509,11 +532,10 @@ public class NPCController : MonoBehaviour
         {
             canSwitch = true;
             temp = other.gameObject;
-            other.GetComponent<Outlinable>().enabled = true;
-
+           
         }
 
-        if (other.CompareTag("Enemy") && !isControlled)
+        if (other.CompareTag("Enemy") && !isControlled && other.GetComponent<NPCController>().isControlled)
         {
             interacting = true;
             interactSign.SetActive(true);
@@ -530,10 +552,9 @@ public class NPCController : MonoBehaviour
 
             canSwitch = false;
             temp = null;
-            other.GetComponent<Outlinable>().enabled = false;
-
+           
         }
-        if (other.CompareTag("Enemy") && !isControlled)
+        if (other.CompareTag("Enemy") && !isControlled && other.GetComponent<NPCController>().isControlled)
         {
             interacting = false;
             interactSign.SetActive(false);

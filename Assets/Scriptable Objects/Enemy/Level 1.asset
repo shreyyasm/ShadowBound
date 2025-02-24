@@ -24,11 +24,11 @@ MonoBehaviour:
   chaseSpeed: 12
   normalSpeed: 6
   alertDelay: 1
-  controlTime: 50
+  controlTime: 5
   stunDuration: 3
-  searchTime: 20
+  searchTime: 15
   Dash: 1
   MoveObjects: 1
   RotateObjects: 1
   TeleportPlayer: 1
-  DistanceConsume: 0
+  DistanceConsume: 1
