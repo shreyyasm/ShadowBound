@@ -24,7 +24,7 @@ MonoBehaviour:
   chaseSpeed: 12
   normalSpeed: 6
   alertDelay: 1
-  controlTime: 5
+  controlTime: 30
   stunDuration: 3
   searchTime: 15
   Dash: 1

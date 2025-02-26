@@ -390,6 +390,7 @@ public class NPCController : MonoBehaviour
     } 
     private IEnumerator AlertAndChase()
     {
+        alertSign.SetActive(true);
         audioSource.PlayOneShot(alertSound);
         isChasing = true;
         if(!Caught)

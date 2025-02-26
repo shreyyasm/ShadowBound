@@ -16625,6 +16625,62 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 034bc47afcbf5e141a58d5c20b7808e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1710396387
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1710396388}
+  - component: {fileID: 1710396389}
+  m_Layer: 0
+  m_Name: Player Progession
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1710396388
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710396387}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.633863, y: 7.038842, z: -8.234788}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1710396389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710396387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19f5a263e80b5984c96b4ca70cae6602, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerLevel: 1
+  playerXP: 0
+  coins: 0
+  xpThresholds: 00000000640000002c01000058020000e8030000
+  abilities: []
+  levelText: {fileID: 0}
+  xpText: {fileID: 0}
+  coinText: {fileID: 0}
+  chestPanel: {fileID: 0}
+  shopPanel: {fileID: 0}
+  chestRewardContainer: {fileID: 0}
+  abilityCardPrefab: {fileID: 0}
 --- !u!1 &1713369129
 GameObject:
   m_ObjectHideFlags: 3
@@ -20670,3 +20726,4 @@ SceneRoots:
   - {fileID: 350913946}
   - {fileID: 7473247421802521483}
   - {fileID: 689926028}
+  - {fileID: 1710396388}
