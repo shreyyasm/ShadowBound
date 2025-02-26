@@ -14,9 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerLevel: 5
   PlayerXP: 1000
-  Coins: 8500
-  Ability1Cards: 2
-  Ability2Cards: 0
-  Ability3Cards: 3
-  Ability4Cards: 0
-  Ability5Cards: 4
+  Coins: 0
+  AbilityCardsHave: 0a00000001000000000000000000000000000000
+  AbilityUnlocked: 0100000000

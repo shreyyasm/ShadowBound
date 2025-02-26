@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using DG.Tweening;
 using System.Collections;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using static PlayerProgression;
 
 public class ChestManager : MonoBehaviour
 {
@@ -34,11 +36,42 @@ public class ChestManager : MonoBehaviour
         return null;
     }
     public List<CardDisplay> cardDisplays; // UI references for showing cards
+    public AudioSource audioSource;
+    public AudioClip CardMoveSFX;
+    public AudioClip CardPopSFX;
+
+    public GameObject CardsResetPos;
 
 
+    public GameObject OpenChestIMG;
+    public GameObject CloseChestIMG;
+    bool chestOpened;
     public void OpenChest()
     {
-        StartCoroutine(DisplayChestRewards());
+        if(!chestOpened)
+        {
+            audioSource.PlayOneShot(OpenChestSFX);
+            ResetCardPositions();
+            StartCoroutine(DisplayChestRewards());
+            chestOpened = true;
+            OpenChestIMG.SetActive(true);
+            CloseChestIMG.SetActive(false);
+        }
+        else
+        {
+            ResetCardPositions();
+            GameManager.instance.CloseChestMenu();
+            OpenChestIMG.SetActive(false);
+            CloseChestIMG.SetActive(true);
+            chestOpened = false;
+
+            foreach(CardDisplay i in cardDisplays)
+            {
+                i.ResetCards();
+            }
+        }
+     
+       
     }
 
     private IEnumerator DisplayChestRewards()
@@ -100,20 +133,74 @@ public class ChestManager : MonoBehaviour
         Transform targetPosition = cardHolderPositions[cardIndex];
 
         card.transform.SetAsLastSibling(); // Bring card to front for visibility
-
+        audioSource.PlayOneShot(CardMoveSFX, 0.4f);
         // Move the card from chest to the holder
         card.transform.DOMove(targetPosition.position, 0.1f).SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
+                
                 LeanTween.delayedCall(1f, () => {
-                    card.transform.DOScale(1.2f, 0.15f).SetEase(Ease.OutBack).OnComplete(() =>
+                    card.transform.DOScale(1.2f, 0.12f).SetEase(Ease.OutBack).OnComplete(() =>
                     {
-
+                        audioSource.PlayOneShot(CardPopSFX, 0.4f);
                         card.transform.DOScale(1f, 0.1f);
+                        card.GetComponent<CardFlip>().slider.gameObject.SetActive(true);
+                        card.GetComponent<CardDisplay>().abilityNameText.gameObject.SetActive(true);
+                        if (PlayerProgression.Instance.abilities[abilityID].unlocked)
+                        {
+                            card.GetComponent<CardFlip>().shine.SetActive(true);
+                        }
+                           
                     });
                 });
                 // Pop-up effect after reaching position
                
             });
+    }
+    public void ResetCardPositions()
+    {
+        foreach(GameObject i in chestCards)
+        {
+            i.transform.position = CardsResetPos.transform.position;
+            i.GetComponent<CardFlip>().slider.gameObject.SetActive(false);
+            i.SetActive(false);
+        }
+        foreach(CardDisplay i in cardDisplays)
+        {
+            i.abilityNameText.gameObject.SetActive(false);
+        }
+    }
+    public void CloseChest()
+    {
+
+        foreach (GameObject i in chestCards)
+        {
+            i.transform.position = CardsResetPos.transform.position;
+            i.GetComponent<CardFlip>().slider.gameObject.SetActive(false);
+            i.SetActive(false);
+        }
+        foreach (CardDisplay i in cardDisplays)
+        {
+            i.abilityNameText.gameObject.SetActive(false);
+        }
+    }
+    public GameObject Moneytext;
+    public AudioClip OpenChestSFX;
+    public void BuyChest()
+    {
+        if (PlayerProgression.Instance.coins > 1000)
+        {
+            audioSource.PlayOneShot(PlayerProgression.Instance.BuySFX);
+            PlayerProgression.Instance.coins -= 1000;
+            PlayerProgression.Instance.stats.Coins = PlayerProgression.Instance.coins;
+            GameManager.instance.OpenChestMenu();
+            PlayerProgression.Instance.UpdateAllUI();
+        }
+        else
+        {
+            Moneytext.SetActive(true);
+            LeanTween.delayedCall(3f, () => { Moneytext.SetActive(false); });
+
+        }
     }
 }

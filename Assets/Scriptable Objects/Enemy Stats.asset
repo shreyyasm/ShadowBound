@@ -10,14 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8816ff3de9f8284cb97476e29063919, type: 3}
-  m_Name: Level 2
+  m_Name: Enemy Stats
   m_EditorClassIdentifier: 
   Level: Level 1
-  LevelIndex: 2
-  NPCSpeed: 2
-  RoamRadius: 12
-  RoamDelay: 6
-  HealthModifer: 5
-  MaxHealth: 120
+  LevelIndex: 1
+  NPCSpeed: 6
+  RoamRadius: 10
+  RoamDelay: 2
   MoveSpeed: 12
-  DashSpeed: 40
+  DashSpeed: 70
+  visionRange: 6.5
+  visionAngle: 55
+  chaseSpeed: 12
+  normalSpeed: 6
+  alertDelay: 1
+  controlTime: 30
+  stunDuration: 3
+  searchTime: 15
+  AbilitiesUnlocked: 0000000000

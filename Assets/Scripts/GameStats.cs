@@ -12,10 +12,8 @@ public class GameStats : ScriptableObject
     public int Coins;
 
     [Header("Cards")]
+    public List<int> AbilityCardsHave;
+    public List<bool> AbilityUnlocked;
+    
 
-    public int Ability1Cards;
-    public int Ability2Cards;
-    public int Ability3Cards;
-    public int Ability4Cards;
-    public int Ability5Cards;
 }

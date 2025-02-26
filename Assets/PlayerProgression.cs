@@ -6,7 +6,9 @@ using System.Collections;
 using System;
 public class PlayerProgression : MonoBehaviour
 {
+    public static PlayerProgression Instance;
     public GameStats stats;
+    public EnemyStats enemyStats;
     [System.Serializable]
     public class Ability
     {
@@ -39,6 +41,7 @@ public class PlayerProgression : MonoBehaviour
     public AudioClip UnlockedSFX;
     private void Awake()
     {
+        Instance = this;
         LoadGameData();
     }
     public void LoadGameData()
@@ -48,11 +51,11 @@ public class PlayerProgression : MonoBehaviour
 
         coins = stats.Coins;
 
-        abilities[0].cardsHave = stats.Ability1Cards;
-        abilities[1].cardsHave = stats.Ability2Cards;
-        abilities[2].cardsHave = stats.Ability3Cards;
-        abilities[3].cardsHave = stats.Ability4Cards;
-        abilities[4].cardsHave = stats.Ability5Cards;
+        abilities[0].cardsHave = stats.AbilityCardsHave[0];
+        abilities[1].cardsHave = stats.AbilityCardsHave[1];
+        abilities[2].cardsHave = stats.AbilityCardsHave[2];
+        abilities[3].cardsHave = stats.AbilityCardsHave[3];
+        abilities[4].cardsHave = stats.AbilityCardsHave[4];
         //UpdateAllUI();
 
 
@@ -88,26 +91,6 @@ public class PlayerProgression : MonoBehaviour
         }
     }
 
-  
-    public void OpenChest()
-    {
-        chestPanel.SetActive(true);
-        chestRewardContainer.SetActive(true);
-        for (int i = 0; i < 3; i++)
-        {
-            int abilityIndex = GetRandomAbilityIndex();
-            GameObject card = Instantiate(abilityCardPrefab, chestRewardContainer.transform);
-            card.GetComponentInChildren<Text>().text = abilities[abilityIndex].name;
-        }
-        UpdateUI();
-    }
-
-    int GetRandomAbilityIndex()
-    {
-        int maxIndex = Mathf.Clamp(playerLevel, 1, abilities.Count) - 1;
-        return UnityEngine.Random.Range(0, maxIndex + 1);
-    }
-
     void UpdateUI()
     {
         levelText.text = "Level: " + playerLevel;
@@ -118,6 +101,7 @@ public class PlayerProgression : MonoBehaviour
    
     public float popScale = 1.2f;
     public float popDuration = 0.3f;
+    public GameObject NotEnoughMoney;
 
     public void BuyCard(int abilityIndex)
     {
@@ -129,30 +113,38 @@ public class PlayerProgression : MonoBehaviour
             audioSource.PlayOneShot(BuySFX);
            
         }
+        else
+        {
+            NotEnoughMoney.SetActive(true);
+            LeanTween.delayedCall(3f, () => { NotEnoughMoney.SetActive(false); });
+        }
     }
 
-
+    public void AddcardFromChest(int abilityIndex)
+    {
+            AddCard(abilityIndex);
+    }
     public void AddCard( int index)
     {
 
         if (abilities[index].cardsHave < abilities[index].cardsNeed)
         {
            
-           abilities[index].cardsHave++;
+            abilities[index].cardsHave++;
             StartCoroutine(PopEffect());
-            UpdateCardUI(index);
-            stats.Ability1Cards = abilities[index].cardsHave;
+            //UpdateCardUI(index);
+            stats.AbilityCardsHave[index] = abilities[index].cardsHave;
+            if(abilities[index].cardsHave >= abilities[index].cardsNeed)
+            {
+                stats.AbilityUnlocked[index] = true;
+                enemyStats.AbilitiesUnlocked[index] = true;
+                abilities[index].BuyButton.SetActive(false);
+                abilities[index].UnlockedText.SetActive(true);
+                abilities[index].cardSlider.gameObject.SetActive(false);
+                abilities[index].Shine.gameObject.SetActive(true);
+                audioSource.PlayOneShot(UnlockedSFX);
+            }
         }
-        if (abilities[index].cardsHave == abilities[index].cardsNeed)
-        {
-            abilities[index].BuyButton.SetActive(false);
-            abilities[index].UnlockedText.SetActive(true);
-            abilities[index].cardSlider.gameObject.SetActive(false);
-            abilities[index].Shine.gameObject.SetActive(true);
-            audioSource.PlayOneShot(UnlockedSFX);
-        }
-
-
     }
 
     IEnumerator PopEffect()

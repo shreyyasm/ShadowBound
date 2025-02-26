@@ -33,13 +33,6 @@ public class EnemyStats : ScriptableObject
 
 
     [Header("Abilities")]
-    public bool Dash;
-    public bool MoveObjects;
-    public bool RotateObjects;
-    public bool TeleportPlayer;
-    public bool DistanceConsume;
-
-  
-
+    public List<bool> AbilitiesUnlocked;
 
 }

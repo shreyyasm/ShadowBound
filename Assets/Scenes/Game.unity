@@ -16669,6 +16669,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f5a263e80b5984c96b4ca70cae6602, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: b5116ae1c523e5b4094d609c4a44b430, type: 2}
+  enemyStats: {fileID: 11400000, guid: f23db31a8fc9dd940b109b23c6d8e893, type: 2}
   playerLevel: 1
   playerXP: 0
   coins: 0
@@ -16681,6 +16683,11 @@ MonoBehaviour:
   shopPanel: {fileID: 0}
   chestRewardContainer: {fileID: 0}
   abilityCardPrefab: {fileID: 0}
+  audioSource: {fileID: 0}
+  BuySFX: {fileID: 0}
+  UnlockedSFX: {fileID: 0}
+  popScale: 1.2
+  popDuration: 0.3
 --- !u!1 &1713369129
 GameObject:
   m_ObjectHideFlags: 3

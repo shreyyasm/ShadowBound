@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CardFlip : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class CardFlip : MonoBehaviour
 
     public AudioSource audioSource;
     public AudioClip FlipSFX;
+    public Slider slider;
+    public GameObject shine;
+  
     private void Update()
     {
         if (isFlipping)

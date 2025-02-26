@@ -119,11 +119,11 @@ public class NPCController : MonoBehaviour
 
         //ControlStats
         moveSpeed = EnemyStats.MoveSpeed;
-        abilities.Dash = EnemyStats.Dash;
-        abilities.MoveObjects = EnemyStats.MoveObjects;
-        abilities.RotateObjects = EnemyStats.RotateObjects;
-        abilities.TeleportPlayer = EnemyStats.TeleportPlayer;
-        abilities.DistanceConsume = EnemyStats.DistanceConsume;
+        abilities.Dash = EnemyStats.AbilitiesUnlocked[0];
+        abilities.MoveObjects = EnemyStats.AbilitiesUnlocked[1];
+        abilities.RotateObjects = EnemyStats.AbilitiesUnlocked[2];
+        abilities.TeleportPlayer = EnemyStats.AbilitiesUnlocked[3];
+        abilities.DistanceConsume = EnemyStats.AbilitiesUnlocked[4];
 
 
     }
