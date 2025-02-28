@@ -5,10 +5,11 @@ using DG.Tweening;
 using System.Collections;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using static PlayerProgression;
+using Game.Scripts;
 
 public class ChestManager : MonoBehaviour
 {
-    
+    public GameData EnemyStatsManager;
     [System.Serializable]
     public class LevelProbability
     {
@@ -192,15 +193,36 @@ public class ChestManager : MonoBehaviour
         {
             audioSource.PlayOneShot(PlayerProgression.Instance.BuySFX);
             PlayerProgression.Instance.coins -= 1000;
-            PlayerProgression.Instance.stats.Coins = PlayerProgression.Instance.coins;
+            EnemyStatsManager.enemyStats.coins = PlayerProgression.Instance.coins;
             GameManager.instance.OpenChestMenu();
             PlayerProgression.Instance.UpdateAllUI();
+            EnemyStatsManager.SaveStats();
         }
         else
         {
             Moneytext.SetActive(true);
             LeanTween.delayedCall(3f, () => { Moneytext.SetActive(false); });
 
+        }
+    }
+    private void Update()
+    {
+        
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+           
+            if (SequenceConnector.Instance == null || SequenceConnector.Instance.Wallet == null)
+            {
+              
+                Debug.LogWarning("No minting will happen. Make sure SequenceConnector is in the scene and user is logged in.");
+                return;
+            }
+            {
+                SequenceConnector.Instance.MintFungibleToken(100);
+                Debug.Log("Worked");
+            }
+         
+         
         }
     }
 }

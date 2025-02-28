@@ -4,14 +4,17 @@ using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static PlayerController;
-
 public class NPCController : MonoBehaviour
 {
     public string Level;
     public int LevelIndex;
     public EnemyStats EnemyStats;
+    
 
     [Header("NPC MovementStats")]
     public float NPCSpeed= 2f;
@@ -90,11 +93,7 @@ public class NPCController : MonoBehaviour
     private PlayerController playerController;
     private Camera cam;
     Animator animator;
-    private void Awake()
-    {
-        LoadplayerData();
-    }
-
+   
     public void LoadplayerData()
     {
         //Level
@@ -119,16 +118,12 @@ public class NPCController : MonoBehaviour
 
         //ControlStats
         moveSpeed = EnemyStats.MoveSpeed;
-        abilities.Dash = EnemyStats.AbilitiesUnlocked[0];
-        abilities.MoveObjects = EnemyStats.AbilitiesUnlocked[1];
-        abilities.RotateObjects = EnemyStats.AbilitiesUnlocked[2];
-        abilities.TeleportPlayer = EnemyStats.AbilitiesUnlocked[3];
-        abilities.DistanceConsume = EnemyStats.AbilitiesUnlocked[4];
-
+       
 
     }
     void Start()
     {
+        LoadplayerData();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         cam = Camera.main;
@@ -154,7 +149,7 @@ public class NPCController : MonoBehaviour
         //interactSign.transform.rotation = Quaternion.Euler(30, 45, 0);
         sprite.transform.rotation = Quaternion.Euler(30, 45, 0);
         //Control
-        if (interacting && Input.GetMouseButtonDown(1) && !isStunned && !isControlled && !abilities.usingAbility && !check)
+        if (interacting && Input.GetMouseButtonDown(1) && !isStunned && !isControlled && !abilities.usingAbility && !check && !Caught)
         {
             TakeControl();
         }
@@ -387,19 +382,28 @@ public class NPCController : MonoBehaviour
             animator.SetBool("IsWalking", false);
         }
        
-    } 
+    }
+    public GameObject postProcessVolumeAlert;
     private IEnumerator AlertAndChase()
     {
-        alertSign.SetActive(true);
-        audioSource.PlayOneShot(alertSound);
-        isChasing = true;
         if(!Caught)
+        {
+            postProcessVolumeAlert.SetActive(true);
+            abilities.BigViewCamera.SetActive(true);
+            animator.SetBool("IsWalking", false);
+            alertSign.SetActive(true);
+            audioSource.PlayOneShot(alertSound);
             agent.isStopped = true;
+            LeanTween.delayedCall(1.5f, () => { Transitioner.Instance.TransitionToFix(); });
+
+            LeanTween.delayedCall(2.5f, () => { SceneManager.LoadScene(2); });
+            Caught = true;
+        }
+        
+
+           
         yield return new WaitForSeconds(alertDelay);
-        Caught = true;
-        agent.isStopped = false;
-        agent.speed = chaseSpeed;
-        agent.SetDestination(player.transform.position);
+      
     }
     public void PlayerFound()
     {
@@ -456,7 +460,7 @@ public class NPCController : MonoBehaviour
 
     private IEnumerator SearchForPlayer()
     {
-       
+        
         isSearching = true;
         agent.speed = chaseSpeed;
         float elapsedTime = 0;

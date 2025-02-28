@@ -21,15 +21,27 @@ public class TileController : MonoBehaviour
             targetPosition = originalPosition + Vector3.up * riseHeight;
             isMoving = true;
         }
+        if (other.CompareTag("Main") && other.GetComponentInParent<NPCController>().isControlled) // Ensure player has the "Player" tag
+        {
+            targetPosition = originalPosition + Vector3.up * riseHeight;
+            isMoving = true;
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            targetPosition = originalPosition;
+        targetPosition = originalPosition;
             isMoving = true;
-        }
+        //if (other.CompareTag("Player"))
+        //{
+        //    targetPosition = originalPosition;
+        //    isMoving = true;
+        //}
+        //if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isControlled) // Ensure player has the "Player" tag
+        //{
+        //    targetPosition = originalPosition + Vector3.up * riseHeight;
+        //    isMoving = true;
+        //}
     }
 
     void Update()

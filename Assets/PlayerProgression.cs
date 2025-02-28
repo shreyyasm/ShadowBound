@@ -7,8 +7,7 @@ using System;
 public class PlayerProgression : MonoBehaviour
 {
     public static PlayerProgression Instance;
-    public GameStats stats;
-    public EnemyStats enemyStats;
+    public GameData stats;
     [System.Serializable]
     public class Ability
     {
@@ -17,6 +16,7 @@ public class PlayerProgression : MonoBehaviour
         public int cardsHave;
         public int cardsNeed;
         public bool unlocked;
+        public int cardvalue;
 
         [Header("Ability UI")]
         public GameObject MainCard;
@@ -25,6 +25,7 @@ public class PlayerProgression : MonoBehaviour
         public GameObject BuyButton;
         public GameObject UnlockedText;
         public GameObject Shine;
+        public TextMeshProUGUI BuyText;
     }
 
     public int playerLevel = 1;
@@ -42,27 +43,30 @@ public class PlayerProgression : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        LoadGameData();
-    }
-    public void LoadGameData()
-    {
-        playerLevel = stats.PlayerLevel;
-        playerXP = stats.PlayerXP;
-
-        coins = stats.Coins;
-
-        abilities[0].cardsHave = stats.AbilityCardsHave[0];
-        abilities[1].cardsHave = stats.AbilityCardsHave[1];
-        abilities[2].cardsHave = stats.AbilityCardsHave[2];
-        abilities[3].cardsHave = stats.AbilityCardsHave[3];
-        abilities[4].cardsHave = stats.AbilityCardsHave[4];
-        //UpdateAllUI();
-
-
+       
     }
     void Start()
     {
+        LoadGameData();
         UpdateUI();
+    }
+    public void LoadGameData()
+    {
+        playerLevel = stats.enemyStats.LevelIndex;
+        playerXP = stats.enemyStats.playerXP;
+
+        coins = stats.enemyStats.coins;
+        abilities[0].unlocked = stats.enemyStats.AbilityUnlocked[0];
+        abilities[1].unlocked = stats.enemyStats.AbilityUnlocked[1];
+        abilities[2].unlocked = stats.enemyStats.AbilityUnlocked[2];
+        abilities[3].unlocked = stats.enemyStats.AbilityUnlocked[3];
+        abilities[4].unlocked = stats.enemyStats.AbilityUnlocked[4];
+        abilities[0].cardsHave = stats.enemyStats.AbilityCardsHave[0];
+        abilities[1].cardsHave = stats.enemyStats.AbilityCardsHave[1];
+        abilities[2].cardsHave = stats.enemyStats.AbilityCardsHave[2];
+        abilities[3].cardsHave = stats.enemyStats.AbilityCardsHave[3];
+        abilities[4].cardsHave = stats.enemyStats.AbilityCardsHave[4];
+        //UpdateAllUI();
     }
     private void Update()
     {
@@ -76,7 +80,8 @@ public class PlayerProgression : MonoBehaviour
         playerXP += amount;
         CheckLevelUp();
         UpdateUI();
-        stats.PlayerXP = playerXP;
+        stats.enemyStats.playerXP = playerXP;
+        stats.SaveStats();
     }
 
     void CheckLevelUp()
@@ -85,9 +90,10 @@ public class PlayerProgression : MonoBehaviour
         {
             playerLevel++;
             coins += 50; // Reward on level up
-            stats.Coins = coins;
-            stats.PlayerLevel = playerLevel;
-            stats.PlayerXP = playerXP;
+            stats.enemyStats.coins = coins;
+            stats.enemyStats.LevelIndex = playerLevel;
+            stats.enemyStats.playerXP = playerXP;
+            stats.SaveStats();
         }
     }
 
@@ -105,13 +111,14 @@ public class PlayerProgression : MonoBehaviour
 
     public void BuyCard(int abilityIndex)
     {
-        if (coins >= 100)
+        if (coins >= abilities[abilityIndex].cardvalue)
         {
-            coins -= 100;
-            stats.Coins = coins;
+            coins -= abilities[abilityIndex].cardvalue;
+            stats.enemyStats.coins = coins;
             AddCard(abilityIndex);
             audioSource.PlayOneShot(BuySFX);
-           
+            stats.SaveStats();
+
         }
         else
         {
@@ -133,16 +140,18 @@ public class PlayerProgression : MonoBehaviour
             abilities[index].cardsHave++;
             StartCoroutine(PopEffect());
             //UpdateCardUI(index);
-            stats.AbilityCardsHave[index] = abilities[index].cardsHave;
-            if(abilities[index].cardsHave >= abilities[index].cardsNeed)
+            stats.enemyStats.AbilityCardsHave[index] = abilities[index].cardsHave;
+            stats.SaveStats();
+            if (abilities[index].cardsHave >= abilities[index].cardsNeed)
             {
-                stats.AbilityUnlocked[index] = true;
-                enemyStats.AbilitiesUnlocked[index] = true;
+                abilities[index].unlocked = true;
+                stats.enemyStats.AbilityUnlocked[index] = true;
                 abilities[index].BuyButton.SetActive(false);
                 abilities[index].UnlockedText.SetActive(true);
                 abilities[index].cardSlider.gameObject.SetActive(false);
                 abilities[index].Shine.gameObject.SetActive(true);
                 audioSource.PlayOneShot(UnlockedSFX);
+                stats.SaveStats();
             }
         }
     }
@@ -184,6 +193,7 @@ public class PlayerProgression : MonoBehaviour
     {
         for (int index = 0; index < abilities.Count; index++)
         {
+            abilities[index].BuyText.text = "Buy" + abilities[index].cardvalue;
             abilities[index].cardSlider.value = (float)abilities[index].cardsHave / abilities[index].cardsNeed;
             abilities[index].cardsText.text = abilities[index].cardsHave + "/" + abilities[index].cardsNeed;
             if (abilities[index].cardsHave == abilities[index].cardsNeed)
@@ -192,6 +202,7 @@ public class PlayerProgression : MonoBehaviour
                 abilities[index].UnlockedText.SetActive(true);
                 abilities[index].cardSlider.gameObject.SetActive(false);
                 abilities[index].Shine.gameObject.SetActive(true);
+               
             }
         }
     }

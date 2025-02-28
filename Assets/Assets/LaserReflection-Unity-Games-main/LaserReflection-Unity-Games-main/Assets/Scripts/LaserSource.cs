@@ -29,6 +29,7 @@ public class LaserSource : MonoBehaviour
             if (hit.collider.CompareTag("Receiver"))
             {
                 Debug.Log("Laser Received");
+               
             }
             lr.SetPosition(1, hit.point);
         }

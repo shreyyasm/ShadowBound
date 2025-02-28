@@ -10,6 +10,7 @@ using static UnityEngine.EventSystems.EventTrigger;
 
 public class Abilities : MonoBehaviour
 {
+    public GameData EnemyStatsManager;
     public int currentAbilityIndex = 0;
     public List<AbiltiesStats> Playerabilities = new List<AbiltiesStats>();
 
@@ -79,12 +80,20 @@ public class Abilities : MonoBehaviour
  
     private void Start()
     {
-        Playerabilities[0].AbilityUnlocked = Dash;
-        Playerabilities[1].AbilityUnlocked = MoveObjects; 
-        Playerabilities[2].AbilityUnlocked = RotateObjects;
-        Playerabilities[3].AbilityUnlocked = TeleportPlayer; 
-        Playerabilities[4].AbilityUnlocked = DistanceConsume;
-        LoadAbilityCards();
+        Dash = EnemyStatsManager.enemyStats.AbilityUnlocked[0];
+        MoveObjects = EnemyStatsManager.enemyStats.AbilityUnlocked[1];
+        RotateObjects = EnemyStatsManager.enemyStats.AbilityUnlocked[2];
+        TeleportPlayer = EnemyStatsManager.enemyStats.AbilityUnlocked[3];
+        DistanceConsume = EnemyStatsManager.enemyStats.AbilityUnlocked[4];
+
+        Playerabilities[0].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[0];
+        Playerabilities[1].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[1];
+        Playerabilities[2].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[2];
+        Playerabilities[3].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[3];
+        Playerabilities[4].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[4];
+
+        LeanTween.delayedCall(1f, () => { LoadAbilityCards(); });
+      
     }
 
     private void Update()

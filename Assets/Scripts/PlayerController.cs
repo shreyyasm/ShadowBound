@@ -6,8 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
-    public List<PlayerData> playerStatsData;
-    public PlayerStats playerStats;
+    public PlayerStats playerStatsData;
     public string Level;
     public int Levelindex;
 
@@ -35,12 +34,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 isoRight = new Vector3(1, 0, -1).normalized;
 
     AudioSource audioSource;
-    [System.Serializable]
-    public class PlayerData
-    {
-        public string PlayerLevel;
-        public PlayerStats stats;
-    }
+ 
  
     private void Awake()
     {
@@ -58,17 +52,13 @@ public class PlayerController : MonoBehaviour
     }
     public void LoadplayerData()
     {
-        foreach (PlayerData i in playerStatsData)
-        {
-            if (i.PlayerLevel == PlayerPrefs.GetString("PlayerStats"))
-            {
-                Level = i.stats.Level;
-                Levelindex = i.stats.LevelIndex;
-                playerStats = i.stats;
-                moveSpeed = i.stats.MoveSpeed;
-                dashSpeed = i.stats.DashSpeed;
-            }
-        }
+        
+                Level = playerStatsData.Level;
+                Levelindex = playerStatsData.LevelIndex;
+                moveSpeed = playerStatsData.MoveSpeed;
+                dashSpeed = playerStatsData.DashSpeed;
+            
+        
     } 
     void Update()
     {
@@ -147,45 +137,61 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
- 
-    private NPCController closestEnemy;
+
+    public NPCController closestEnemy;
+
     private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Enemy") && !other.GetComponent<NPCController>().isStunned)
         {
-            NPCController[] enemies = FindObjectsOfType<NPCController>(); // Get all enemies
-            float minDistance = float.MaxValue;
-            NPCController nearestEnemy = null;
+            FindClosestEnemy();
+        }
+    }
 
-            foreach (NPCController enemy in enemies)
+    private void FindClosestEnemy()
+    {
+        NPCController[] enemies = FindObjectsOfType<NPCController>(); // Get all enemies
+        float minDistance = float.MaxValue;
+        NPCController nearestEnemy = null;
+
+        foreach (NPCController enemy in enemies)
+        {
+            if (enemy != null && !enemy.isStunned && !enemy.isControlled)
             {
-                if (enemy != null && enemy != this && !enemy.isControlled)
+                float distance = Vector3.Distance(transform.position, enemy.transform.position);
+                if (distance < minDistance)
                 {
-                    float distance = Vector3.Distance(transform.position, enemy.transform.position);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        nearestEnemy = enemy;
-                    }
+                    minDistance = distance;
+                    nearestEnemy = enemy;
                 }
             }
+        }
 
-            closestEnemy = nearestEnemy; // Assign the closest enemy
-            closestEnemy.interacting = true;
-            closestEnemy.interactSign.SetActive(true);
+        // Only update if the closest enemy changes
+        if (nearestEnemy != closestEnemy)
+        {
+            if (closestEnemy != null)
+            {
+                closestEnemy.interacting = false;
+                closestEnemy.interactSign.SetActive(false); // Remove interaction from previous enemy
+            }
+
+            closestEnemy = nearestEnemy;
+
+            if (closestEnemy != null && !closestEnemy.Caught)
+            {
+                closestEnemy.interacting = true;
+                closestEnemy.interactSign.SetActive(true); // Show interaction sign for new closest enemy
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy") && closestEnemy == other.GetComponent<NPCController>())
         {
-            other.GetComponent<NPCController>().interacting = false;
-            other.GetComponent<NPCController>().interactSign.SetActive(false);
-        }
-        if (closestEnemy != null && other.gameObject == closestEnemy.gameObject)
-        {
+            closestEnemy.interacting = false;
+            closestEnemy.interactSign.SetActive(false);
             closestEnemy = null;
         }
     }

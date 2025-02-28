@@ -41,6 +41,7 @@ public class LaserReflector : MonoBehaviour
                     DoorController.instance.OpenFinalDoor();
                     gateOpened = true;
                     Debug.Log("Laser Received");
+                    HomingMissileSystem.instance.LaunchMissiles();
                 }
                 lr.SetPosition(1, hit.point);
             }
