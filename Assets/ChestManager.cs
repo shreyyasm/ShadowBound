@@ -5,7 +5,6 @@ using DG.Tweening;
 using System.Collections;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using static PlayerProgression;
-using Game.Scripts;
 
 public class ChestManager : MonoBehaviour
 {
@@ -208,21 +207,6 @@ public class ChestManager : MonoBehaviour
     private void Update()
     {
         
-        if(Input.GetKeyDown(KeyCode.Q))
-        {
-           
-            if (SequenceConnector.Instance == null || SequenceConnector.Instance.Wallet == null)
-            {
-              
-                Debug.LogWarning("No minting will happen. Make sure SequenceConnector is in the scene and user is logged in.");
-                return;
-            }
-            {
-                SequenceConnector.Instance.MintFungibleToken(100);
-                Debug.Log("Worked");
-            }
-         
-         
-        }
+      
     }
 }

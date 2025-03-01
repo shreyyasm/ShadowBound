@@ -7488,6 +7488,59 @@ MonoBehaviour:
   m_MinRegionArea: 0
   m_HideEditorLogs: 0
   m_NavMeshData: {fileID: 23800000, guid: 740ac3533fecea64aa29ad4254305bbb, type: 2}
+--- !u!1 &659135402
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 659135403}
+  - component: {fileID: 659135404}
+  m_Layer: 0
+  m_Name: Whalepass Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &659135403
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659135402}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 138.25697, y: -11.053925, z: 1.703822}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &659135404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659135402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18612f1076e4d13409201874cdf686c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameId: fb52371f-7f78-4fed-a212-49ef8cd047ac
+  ApiKey: 37c020b45087e9d5dd9c70c198a35a0b
+  BattlePassId: 2c97a841-2a60-4bc5-8c55-ce99ca4e79b6
+  playerId: 
+  currentLevel: 0
+  CurrentTotalExp: 0
+  CurrentExp: 0
+  NextLevelExp: 0
+  ExpRequiredLastlevel: 0
 --- !u!1001 &668557928
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21842,3 +21895,4 @@ SceneRoots:
   - {fileID: 166508365}
   - {fileID: 1659593341}
   - {fileID: 156241453}
+  - {fileID: 659135403}
