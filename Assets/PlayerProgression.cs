@@ -49,6 +49,7 @@ public class PlayerProgression : MonoBehaviour
     {
         LoadGameData();
         UpdateUI();
+        UpdateInventory();
     }
     public void LoadGameData()
     {
@@ -66,7 +67,7 @@ public class PlayerProgression : MonoBehaviour
         abilities[2].cardsHave = stats.enemyStats.AbilityCardsHave[2];
         abilities[3].cardsHave = stats.enemyStats.AbilityCardsHave[3];
         abilities[4].cardsHave = stats.enemyStats.AbilityCardsHave[4];
-        //UpdateAllUI();
+        UpdateAllUI();
     }
     private void Update()
     {
@@ -193,7 +194,8 @@ public class PlayerProgression : MonoBehaviour
     {
         for (int index = 0; index < abilities.Count; index++)
         {
-            abilities[index].BuyText.text = "Buy" + abilities[index].cardvalue;
+            Debug.Log(abilities[index].BuyText);
+            //abilities[index].BuyText.text = "Buy " + abilities[index].cardvalue;
             abilities[index].cardSlider.value = (float)abilities[index].cardsHave / abilities[index].cardsNeed;
             abilities[index].cardsText.text = abilities[index].cardsHave + "/" + abilities[index].cardsNeed;
             if (abilities[index].cardsHave == abilities[index].cardsNeed)
@@ -206,5 +208,15 @@ public class PlayerProgression : MonoBehaviour
             }
         }
     }
-  
+    public List<GameObject> Inventory;
+    public void UpdateInventory()
+    {
+        for(int index = 0;index < Inventory.Count;index++)
+        {
+            if(abilities[index].unlocked)
+            {
+                Inventory[index].SetActive(true);
+            }
+        }
+    }
 }

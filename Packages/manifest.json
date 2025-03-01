@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.unity.ai.navigation": "1.1.5",
+    "com.unity.nuget.newtonsoft-json": "3.0.2",
     "com.unity.cinemachine": "2.10.3",
     "com.unity.collab-proxy": "2.6.0",
     "com.unity.feature.development": "1.0.1",
@@ -11,7 +12,6 @@
     "com.unity.ugui": "1.0.0",
     "com.unity.visualscripting": "1.9.4",
     "gg.whalepass.whalepasssdk": "https://github.com/whalepass/unity-sdk.git",
-    "xyz.0xsequence.waas-unity": "https://github.com/0xsequence/sequence-unity.git?path=/Packages/Sequence-Unity",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",

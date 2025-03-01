@@ -204,9 +204,5 @@ public class ChestManager : MonoBehaviour
 
         }
     }
-    private void Update()
-    {
-        
-      
-    }
+ 
 }

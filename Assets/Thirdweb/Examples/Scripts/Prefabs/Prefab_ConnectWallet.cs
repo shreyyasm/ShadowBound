@@ -119,7 +119,7 @@ public class Prefab_ConnectWallet : MonoBehaviour
             OnConnected();
             print($"Connected successfully to: {address}");
 
-            StartScreen.GetComponent<StartScreen>().ToggleStartScreen(ConnectedState, DisconnectedState);
+            StartScreen.GetComponent<StartScreen>().ToggleStartScreen(ConnectedState, DisconnectedState,address);
         }
         catch (Exception e)
         {
