@@ -24,6 +24,8 @@ public class Prefab_NFT : MonoBehaviour
             yield return webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
+                print($"Trying to fetch NFT Image from: {nft.metadata.image}");
+
                 print($"Could not fetch id: {nft.metadata.id} - image: {nft.metadata.image}");
             }
             else
