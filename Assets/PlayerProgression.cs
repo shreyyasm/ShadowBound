@@ -49,7 +49,7 @@ public class PlayerProgression : MonoBehaviour
     {
         LoadGameData();
         UpdateUI();
-        UpdateInventory();
+        //UpdateInventory();
     }
     public void LoadGameData()
     {

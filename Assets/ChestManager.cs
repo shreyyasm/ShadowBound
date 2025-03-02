@@ -57,23 +57,23 @@ public class ChestManager : MonoBehaviour
             OpenChestIMG.SetActive(true);
             CloseChestIMG.SetActive(false);
         }
-        else
-        {
-            ResetCardPositions();
-            GameManager.instance.CloseChestMenu();
-            OpenChestIMG.SetActive(false);
-            CloseChestIMG.SetActive(true);
-            chestOpened = false;
-
-            foreach(CardDisplay i in cardDisplays)
-            {
-                i.ResetCards();
-            }
-        }
+       
      
        
     }
+    public void ResetCardChest()
+    {
+        ResetCardPositions();
+        GameManager.instance.CloseChestMenu();
+        OpenChestIMG.SetActive(false);
+        CloseChestIMG.SetActive(true);
+        chestOpened = false;
 
+        foreach (CardDisplay i in cardDisplays)
+        {
+            i.ResetCards();
+        }
+    }
     private IEnumerator DisplayChestRewards()
     {
         int level = playerLevel;

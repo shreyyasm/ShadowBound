@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Bcpg;
@@ -23,8 +23,10 @@ namespace Thirdweb.Unity.Examples
         public Button InputFieldSubmitButton;
     }
    
-    public class PlaygroundManager : MonoBehaviour
+    public class BlockchainManager : MonoBehaviour
     {
+        public static BlockchainManager instance;
+        
         [field: SerializeField, Header("Wallet Options")]
         private ulong ActiveChainId = 421614;
 
@@ -55,6 +57,7 @@ namespace Thirdweb.Unity.Examples
 
        private void Awake()
         {
+            instance = this;
             InitializePanels();
         }
 
@@ -267,6 +270,33 @@ namespace Thirdweb.Unity.Examples
             });
         }
         
+        public async void  ClaimAbilityNFT(int index)
+        {
+
+            var dropErc1155Contract = await ThirdwebManager.Instance.GetContract(address: "0xA33A55BC3F2b255234F1EC4f2B760c397209d98d", chainId: ActiveChainId);
+            var options = GetWalletOptions(WalletProvider.WalletConnectWallet);
+            var wallet = await ThirdwebManager.Instance.ConnectWallet(options);
+            var address = await wallet.GetAddress();
+            
+            ThirdwebTransactionReceipt txnResult = await dropErc1155Contract.DropERC1155_Claim(wallet, address, index, 1);
+            string transactionHash = txnResult.TransactionHash;
+            string snowtraceUrl = $"https://testnet.snowtrace.io/tx/{transactionHash}?chainid=43113";
+            Debug.Log("🔗 View Transaction: " + snowtraceUrl);
+            tempURL = snowtraceUrl;
+
+
+            //Update balance
+            var balance = await wallet.GetBalance(chainId: ActiveChainId);
+            var balanceEth = Utils.ToEth(wei: balance.ToString(), decimalsToDisplay: 4, addCommas: true);        
+            playerWalletBalance.text = $"Balance: {balanceEth} {_chainDetails.NativeCurrency.Symbol}";
+
+        }
+        string tempURL;
+        public string SendTransaction_URL()
+        {
+
+            return tempURL;
+        }
         private async void InitializeAccountAbstractionPanel()
         {
             var currentWallet = ThirdwebManager.Instance.GetActiveWallet();

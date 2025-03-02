@@ -7,9 +7,13 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
 
     public GameObject ChaptersMenu;
-    public GameObject AbilitiesMenu;
-    public GameObject BuyChestMenu;
+    public GameObject InventoryMenu;
+    public GameObject ShopMenu;
     public GameObject PlayerLevelMenu;
+    public GameObject ChestScreen;
+
+    public AudioSource audioSource;
+    public AudioClip clip;
     private void Awake()
     {
         instance = this;
@@ -27,22 +31,34 @@ public class GameManager : MonoBehaviour
     public void CloseChaptersMenu()
     {
         ChaptersMenu.SetActive(false);
+        audioSource.PlayOneShot(clip, 0.5f);
     }
-    public void OpenAbilitiesMenu()
+    public void OpenShopMenu()
     {
-        AbilitiesMenu.SetActive(true);
+        ShopMenu.SetActive(true);
     }
-    public void CloseAbilitiesMenu()
+    public void CloseShopMenu()
     {
-        AbilitiesMenu.SetActive(false);
+       ShopMenu.SetActive(false);
+        audioSource.PlayOneShot(clip, 0.5f);
+    }
+    public void OpenInventoryMenu()
+    {
+        InventoryMenu.SetActive(true);
+    }
+    public void CloseInventoryMenu()
+    {
+        InventoryMenu.SetActive(false);
+        audioSource.PlayOneShot(clip, 0.5f);
     }
     public void OpenChestMenu()
     {
-        BuyChestMenu.SetActive(true);
+        ChestScreen.SetActive(true);
     }
     public void CloseChestMenu()
     {
-        BuyChestMenu.SetActive(false);
+        ChestScreen.SetActive(false);
+        audioSource.PlayOneShot(clip, 0.5f);
     }
 
 }
