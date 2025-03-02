@@ -22,7 +22,7 @@ namespace Thirdweb.Unity.Examples
         public TMP_InputField InputField;
         public Button InputFieldSubmitButton;
     }
-
+   
     public class PlaygroundManager : MonoBehaviour
     {
         [field: SerializeField, Header("Wallet Options")]
@@ -48,7 +48,12 @@ namespace Thirdweb.Unity.Examples
 
         private ThirdwebChainData _chainDetails;
 
-        private void Awake()
+        public GameObject PlayerInputMenu;
+        public TextMeshProUGUI playerWalletAddress;
+        public TextMeshProUGUI playerWalletBalance;
+        public GameObject walletShow;
+
+       private void Awake()
         {
             InitializePanels();
         }
@@ -75,7 +80,7 @@ namespace Thirdweb.Unity.Examples
 
         private void InitializePanels()
         {
-            CloseAllPanels();
+            //CloseAllPanels();
 
             ConnectWalletPanel.SetActive(true);
 
@@ -86,8 +91,8 @@ namespace Thirdweb.Unity.Examples
                 ConnectWallet(options);
             });
 
-            EcosystemWalletButton.onClick.RemoveAllListeners();
-            EcosystemWalletButton.onClick.AddListener(() => InitializeEcosystemWalletPanel());
+            //EcosystemWalletButton.onClick.RemoveAllListeners();
+            //EcosystemWalletButton.onClick.AddListener(() => InitializeEcosystemWalletPanel());
 
             WalletConnectButton.onClick.RemoveAllListeners();
             WalletConnectButton.onClick.AddListener(() =>
@@ -114,39 +119,52 @@ namespace Thirdweb.Unity.Examples
 
             // Setup actions
 
-            ClearLog(currentPanel.LogText);
-            currentPanel.Panel.SetActive(true);
+            //ClearLog(currentPanel.LogText);
+            //currentPanel.Panel.SetActive(true);
 
-            currentPanel.BackButton.onClick.RemoveAllListeners();
-            currentPanel.BackButton.onClick.AddListener(InitializePanels);
+            //currentPanel.BackButton.onClick.RemoveAllListeners();
+            //currentPanel.BackButton.onClick.AddListener(InitializePanels);
 
-            currentPanel.NextButton.onClick.RemoveAllListeners();
-            currentPanel.NextButton.onClick.AddListener(InitializeContractsPanel);
+            //currentPanel.NextButton.onClick.RemoveAllListeners();
+            //currentPanel.NextButton.onClick.AddListener(InitializeContractsPanel);
 
-            currentPanel.Action1Button.onClick.RemoveAllListeners();
-            currentPanel.Action1Button.onClick.AddListener(async () =>
-            {
-                var address = await wallet.GetAddress();
-                address.CopyToClipboard();
-                Log(currentPanel.LogText, $"Address: {address}");
-            });
+            //currentPanel.Action1Button.onClick.RemoveAllListeners();
+            //currentPanel.Action1Button.onClick.AddListener(async () =>
+            //{
+            //    var address = await wallet.GetAddress();
+            //    address.CopyToClipboard();
+            //    Log(currentPanel.LogText, $"Address: {address}");
+            //});
 
-            currentPanel.Action2Button.onClick.RemoveAllListeners();
-            currentPanel.Action2Button.onClick.AddListener(async () =>
-            {
-                var message = "Hello World!";
-                var signature = await wallet.PersonalSign(message);
-                Log(currentPanel.LogText, $"Signature: {signature}");
-            });
+            //currentPanel.Action2Button.onClick.RemoveAllListeners();
+            //currentPanel.Action2Button.onClick.AddListener(async () =>
+            //{
+            //    var message = "Hello World!";
+            //    var signature = await wallet.PersonalSign(message);
+            //    Log(currentPanel.LogText, $"Signature: {signature}");
+            //});
 
-            currentPanel.Action3Button.onClick.RemoveAllListeners();
-            currentPanel.Action3Button.onClick.AddListener(async () =>
-            {
-                LoadingLog(currentPanel.LogText);
-                var balance = await wallet.GetBalance(chainId: ActiveChainId);
-                var balanceEth = Utils.ToEth(wei: balance.ToString(), decimalsToDisplay: 4, addCommas: true);
-                Log(currentPanel.LogText, $"Balance: {balanceEth} {_chainDetails.NativeCurrency.Symbol}");
-            });
+            //currentPanel.Action3Button.onClick.RemoveAllListeners();
+            //currentPanel.Action3Button.onClick.AddListener(async () =>
+            //{
+            //    LoadingLog(currentPanel.LogText);
+            //    var balance = await wallet.GetBalance(chainId: ActiveChainId);
+            //    var balanceEth = Utils.ToEth(wei: balance.ToString(), decimalsToDisplay: 4, addCommas: true);
+            //    Log(currentPanel.LogText, $"Balance: {balanceEth} {_chainDetails.NativeCurrency.Symbol}");
+            //});
+            PlayerInputMenu.SetActive(true);
+            var address = await wallet.GetAddress();
+            Log(currentPanel.LogText, $"Address: {address}");
+            playerWalletAddress.text = address;
+
+            var balance = await wallet.GetBalance(chainId: ActiveChainId);
+            var balanceEth = Utils.ToEth(wei: balance.ToString(), decimalsToDisplay: 4, addCommas: true);
+            Log(currentPanel.LogText, $"Balance: {balanceEth} {_chainDetails.NativeCurrency.Symbol}");
+            playerWalletBalance.text = $"Balance: {balanceEth} {_chainDetails.NativeCurrency.Symbol}";
+
+            walletShow.SetActive(true);
+
+
         }
 
         private WalletOptions GetWalletOptions(WalletProvider provider)
@@ -167,161 +185,7 @@ namespace Thirdweb.Unity.Examples
             }
         }
 
-        private void InitializeEcosystemWalletPanel()
-        {
-            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Authentication");
-
-            CloseAllPanels();
-
-            ClearLog(panel.LogText);
-            panel.Panel.SetActive(true);
-
-            panel.BackButton.onClick.RemoveAllListeners();
-            panel.BackButton.onClick.AddListener(InitializePanels);
-
-            // Email
-            panel.Action1Button.onClick.RemoveAllListeners();
-            panel.Action1Button.onClick.AddListener(() =>
-            {
-                InitializeEcosystemWalletPanel_Email();
-            });
-
-            // Phone
-            panel.Action2Button.onClick.RemoveAllListeners();
-            panel.Action2Button.onClick.AddListener(() =>
-            {
-                InitializeEcosystemWalletPanel_Phone();
-            });
-
-            // Socials
-            panel.Action3Button.onClick.RemoveAllListeners();
-            panel.Action3Button.onClick.AddListener(() =>
-            {
-                InitializeEcosystemWalletPanel_Socials();
-            });
-        }
-
-        private void InitializeEcosystemWalletPanel_Email()
-        {
-            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Email");
-
-            CloseAllPanels();
-
-            ClearLog(panel.LogText);
-            panel.Panel.SetActive(true);
-
-            panel.BackButton.onClick.RemoveAllListeners();
-            panel.BackButton.onClick.AddListener(InitializeEcosystemWalletPanel);
-
-            panel.InputFieldSubmitButton.onClick.RemoveAllListeners();
-            panel.InputFieldSubmitButton.onClick.AddListener(() =>
-            {
-                try
-                {
-                    var email = panel.InputField.text;
-                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", email: email);
-                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
-                    ConnectWallet(options);
-                }
-                catch (System.Exception e)
-                {
-                    Log(panel.LogText, e.Message);
-                }
-            });
-        }
-
-        private void InitializeEcosystemWalletPanel_Phone()
-        {
-            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Phone");
-
-            CloseAllPanels();
-
-            ClearLog(panel.LogText);
-            panel.Panel.SetActive(true);
-
-            panel.BackButton.onClick.RemoveAllListeners();
-            panel.BackButton.onClick.AddListener(InitializeEcosystemWalletPanel);
-
-            panel.InputFieldSubmitButton.onClick.RemoveAllListeners();
-            panel.InputFieldSubmitButton.onClick.AddListener(() =>
-            {
-                try
-                {
-                    var phone = panel.InputField.text;
-                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", phoneNumber: phone);
-                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
-                    ConnectWallet(options);
-                }
-                catch (System.Exception e)
-                {
-                    Log(panel.LogText, e.Message);
-                }
-            });
-        }
-
-        private void InitializeEcosystemWalletPanel_Socials()
-        {
-            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Socials");
-
-            CloseAllPanels();
-
-            ClearLog(panel.LogText);
-            panel.Panel.SetActive(true);
-
-            panel.BackButton.onClick.RemoveAllListeners();
-            panel.BackButton.onClick.AddListener(InitializeEcosystemWalletPanel);
-
-            // socials action 1 is google, 2 is apple 3 is discord
-
-            panel.Action1Button.onClick.RemoveAllListeners();
-            panel.Action1Button.onClick.AddListener(() =>
-            {
-                try
-                {
-                    Log(panel.LogText, "Authenticating...");
-                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", authprovider: AuthProvider.Google);
-                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
-                    ConnectWallet(options);
-                }
-                catch (System.Exception e)
-                {
-                    Log(panel.LogText, e.Message);
-                }
-            });
-
-            panel.Action2Button.onClick.RemoveAllListeners();
-            panel.Action2Button.onClick.AddListener(() =>
-            {
-                try
-                {
-                    Log(panel.LogText, "Authenticating...");
-                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", authprovider: AuthProvider.Apple);
-                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
-                    ConnectWallet(options);
-                }
-                catch (System.Exception e)
-                {
-                    Log(panel.LogText, e.Message);
-                }
-            });
-
-            panel.Action3Button.onClick.RemoveAllListeners();
-            panel.Action3Button.onClick.AddListener(() =>
-            {
-                try
-                {
-                    Log(panel.LogText, "Authenticating...");
-                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", authprovider: AuthProvider.Discord);
-                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
-                    ConnectWallet(options);
-                }
-                catch (System.Exception e)
-                {
-                    Log(panel.LogText, e.Message);
-                }
-            });
-        }
-
+      
         private void InitializeContractsPanel()
         {
             var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "Contracts");
@@ -502,5 +366,166 @@ namespace Thirdweb.Unity.Examples
         {
             logText.text = "Loading...";
         }
+
+
+
+
+        private void InitializeEcosystemWalletPanel()
+        {
+            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Authentication");
+
+            CloseAllPanels();
+
+            ClearLog(panel.LogText);
+            panel.Panel.SetActive(true);
+
+            panel.BackButton.onClick.RemoveAllListeners();
+            panel.BackButton.onClick.AddListener(InitializePanels);
+
+            // Email
+            panel.Action1Button.onClick.RemoveAllListeners();
+            panel.Action1Button.onClick.AddListener(() =>
+            {
+                InitializeEcosystemWalletPanel_Email();
+            });
+
+            // Phone
+            panel.Action2Button.onClick.RemoveAllListeners();
+            panel.Action2Button.onClick.AddListener(() =>
+            {
+                InitializeEcosystemWalletPanel_Phone();
+            });
+
+            // Socials
+            panel.Action3Button.onClick.RemoveAllListeners();
+            panel.Action3Button.onClick.AddListener(() =>
+            {
+                InitializeEcosystemWalletPanel_Socials();
+            });
+        }
+
+        private void InitializeEcosystemWalletPanel_Email()
+        {
+            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Email");
+
+            CloseAllPanels();
+
+            ClearLog(panel.LogText);
+            panel.Panel.SetActive(true);
+
+            panel.BackButton.onClick.RemoveAllListeners();
+            panel.BackButton.onClick.AddListener(InitializeEcosystemWalletPanel);
+
+            panel.InputFieldSubmitButton.onClick.RemoveAllListeners();
+            panel.InputFieldSubmitButton.onClick.AddListener(() =>
+            {
+                try
+                {
+                    var email = panel.InputField.text;
+                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", email: email);
+                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
+                    ConnectWallet(options);
+                }
+                catch (System.Exception e)
+                {
+                    Log(panel.LogText, e.Message);
+                }
+            });
+        }
+
+        private void InitializeEcosystemWalletPanel_Phone()
+        {
+            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Phone");
+
+            CloseAllPanels();
+
+            ClearLog(panel.LogText);
+            panel.Panel.SetActive(true);
+
+            panel.BackButton.onClick.RemoveAllListeners();
+            panel.BackButton.onClick.AddListener(InitializeEcosystemWalletPanel);
+
+            panel.InputFieldSubmitButton.onClick.RemoveAllListeners();
+            panel.InputFieldSubmitButton.onClick.AddListener(() =>
+            {
+                try
+                {
+                    var phone = panel.InputField.text;
+                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", phoneNumber: phone);
+                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
+                    ConnectWallet(options);
+                }
+                catch (System.Exception e)
+                {
+                    Log(panel.LogText, e.Message);
+                }
+            });
+        }
+
+
+        //Ecosystem Wallet
+        private void InitializeEcosystemWalletPanel_Socials()
+        {
+            var panel = WalletPanels.Find(walletPanel => walletPanel.Identifier == "EcosystemWallet_Socials");
+
+            CloseAllPanels();
+
+            ClearLog(panel.LogText);
+            panel.Panel.SetActive(true);
+
+            panel.BackButton.onClick.RemoveAllListeners();
+            panel.BackButton.onClick.AddListener(InitializeEcosystemWalletPanel);
+
+            // socials action 1 is google, 2 is apple 3 is discord
+
+            panel.Action1Button.onClick.RemoveAllListeners();
+            panel.Action1Button.onClick.AddListener(() =>
+            {
+                try
+                {
+                    Log(panel.LogText, "Authenticating...");
+                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", authprovider: AuthProvider.Google);
+                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
+                    ConnectWallet(options);
+                }
+                catch (System.Exception e)
+                {
+                    Log(panel.LogText, e.Message);
+                }
+            });
+
+            panel.Action2Button.onClick.RemoveAllListeners();
+            panel.Action2Button.onClick.AddListener(() =>
+            {
+                try
+                {
+                    Log(panel.LogText, "Authenticating...");
+                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", authprovider: AuthProvider.Apple);
+                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
+                    ConnectWallet(options);
+                }
+                catch (System.Exception e)
+                {
+                    Log(panel.LogText, e.Message);
+                }
+            });
+
+            panel.Action3Button.onClick.RemoveAllListeners();
+            panel.Action3Button.onClick.AddListener(() =>
+            {
+                try
+                {
+                    Log(panel.LogText, "Authenticating...");
+                    var ecosystemWalletOptions = new EcosystemWalletOptions(ecosystemId: "ecosystem.the-bonfire", authprovider: AuthProvider.Discord);
+                    var options = new WalletOptions(provider: WalletProvider.EcosystemWallet, chainId: ActiveChainId, ecosystemWalletOptions: ecosystemWalletOptions);
+                    ConnectWallet(options);
+                }
+                catch (System.Exception e)
+                {
+                    Log(panel.LogText, e.Message);
+                }
+            });
+        }
+
     }
 }
