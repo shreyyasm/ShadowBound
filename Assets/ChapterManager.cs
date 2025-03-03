@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class ChapterManager : MonoBehaviour
 {
+    public static ChapterManager instance;
     public int totalChapters = 10;
     public Transform chapterParent;
 
@@ -12,9 +13,14 @@ public class ChapterManager : MonoBehaviour
     public List<GameObject> lockedUIElements = new List<GameObject>();
     public int unlockedChapters;
 
+    private void Awake()
+    {
+        instance = this;
+    }
     private void Start()
     {
         LoadProgress();
+        UpdateAllButtons();
     }
 
 
@@ -26,12 +32,12 @@ public class ChapterManager : MonoBehaviour
         lockedUI.SetActive(!isUnlocked);
     }
 
-    void SelectChapter(int chapterIndex)
+    public void SelectChapter(int chapterIndex)
     {
-        if (chapterIndex < unlockedChapters)
+        if (chapterIndex <= unlockedChapters)
         {
-            Debug.Log("Loading Chapter: " + (chapterIndex + 1));
-            SceneManager.LoadScene("Chapter" + (chapterIndex + 1));
+            //Debug.Log("Loading Chapter: " + (chapterIndex + 1));
+            SceneManager.LoadScene("Level " + (chapterIndex));
         }
     }
 

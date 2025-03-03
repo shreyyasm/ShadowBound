@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public GameObject ShopMenu;
     public GameObject RewardsMenu;
     public GameObject ChestScreen;
+    public GameObject CardUnlockedScreen;
 
     public AudioSource audioSource;
     public AudioClip clip;
@@ -23,6 +24,16 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+    public void OpenCardUnlockedScreen()
+    {
+        CardUnlockedScreen.SetActive(true);
+
+    }
+    public void CloseCardUnlockedScreen()
+    {
+        CardUnlockedScreen.SetActive(false);
+        audioSource.PlayOneShot(clip, 0.5f);
     }
     public void OpenRewardsMenu()
     {

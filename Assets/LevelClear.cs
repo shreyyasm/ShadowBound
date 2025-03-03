@@ -7,6 +7,7 @@ public class LevelClear : MonoBehaviour
 {
     public AudioSource audioSource;
     public AudioClip clearLevelSound;
+    public int CurrentChapter;
     // Start is called before the first frame update
     void Start()
     {
@@ -29,7 +30,7 @@ public class LevelClear : MonoBehaviour
     public void LevelCleared()
     {
         Transitioner.Instance.TransitionToFix();
-
+        ChapterManager.instance.CompleteChapter(CurrentChapter);
         LeanTween.delayedCall(1f, () => { SceneManager.LoadScene("Level Clear"); });
        
     }

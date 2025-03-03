@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System;
+using static PlayerProgression;
 public class PlayerProgression : MonoBehaviour
 {
     public static PlayerProgression Instance;
@@ -159,6 +160,9 @@ public class PlayerProgression : MonoBehaviour
     {
             AddCard(abilityIndex);
     }
+    public ChestManager ChestManager;
+    public AudioClip suspenseRewardSFX;
+    int tempcardIndex;
     public void AddCard( int index)
     {
 
@@ -166,8 +170,9 @@ public class PlayerProgression : MonoBehaviour
         {
            
             abilities[index].cardsHave++;
+            tempcardIndex = index;
             StartCoroutine(PopEffect());
-            //UpdateCardUI(index);
+            UpdateCardUI(index);
             stats.enemyStats.AbilityCardsHave[index] = abilities[index].cardsHave;
             stats.SaveStats();
             if (abilities[index].cardsHave >= abilities[index].cardsNeed)
@@ -180,14 +185,20 @@ public class PlayerProgression : MonoBehaviour
                 abilities[index].Shine.gameObject.SetActive(true);
                 audioSource.PlayOneShot(UnlockedSFX);
                 stats.SaveStats();
+
+                LeanTween.delayedCall(1f, () => {
+                    GameManager.instance.OpenCardUnlockedScreen();
+                    audioSource.PlayOneShot(suspenseRewardSFX);
+                });
+               
+                LeanTween.delayedCall(3.5f, () => { ChestManager.CardDisplayUnlocked[index].ShowCard(index); ChestManager.MoveCardUnlocked(index, index); });
             }
         }
     }
-
     IEnumerator PopEffect()
     {
-        Vector3 originalScale = abilities[0].MainCard.transform.localScale;
-        Vector3 originalScaleSlider = abilities[0].cardSlider.transform.localScale;
+        Vector3 originalScale = abilities[tempcardIndex].MainCard.transform.localScale;
+        Vector3 originalScaleSlider = abilities[tempcardIndex].cardSlider.transform.localScale;
         Vector3 targetScale = originalScale * popScale;
         Vector3 targetScaleSlider = originalScaleSlider * popScale;
         float elapsedTime = 0f;
@@ -196,8 +207,8 @@ public class PlayerProgression : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsedTime / popDuration);
-            abilities[0].MainCard.transform.localScale = Vector3.Lerp(originalScale, targetScale, t);
-            abilities[0].cardSlider.transform.localScale = Vector3.Lerp(originalScaleSlider, targetScale, t);
+            abilities[tempcardIndex].MainCard.transform.localScale = Vector3.Lerp(originalScale, targetScale, t);
+            abilities[tempcardIndex].cardSlider.transform.localScale = Vector3.Lerp(originalScaleSlider, targetScale, t);
             yield return null;
         }
 
@@ -206,8 +217,8 @@ public class PlayerProgression : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsedTime / popDuration);
-            abilities[0].MainCard.transform.localScale = Vector3.Lerp(targetScale, originalScale, t);
-            abilities[0].cardSlider.transform.localScale = Vector3.Lerp(targetScaleSlider, originalScale, t);
+            abilities[tempcardIndex].MainCard.transform.localScale = Vector3.Lerp(targetScale, originalScale, t);
+            abilities[tempcardIndex].cardSlider.transform.localScale = Vector3.Lerp(targetScaleSlider, originalScale, t);
             yield return null;
         }
     }

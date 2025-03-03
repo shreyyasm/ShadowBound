@@ -3140,7 +3140,7 @@ MonoBehaviour:
   ChaptersMenu: {fileID: 2039060244}
   InventoryMenu: {fileID: 922524369}
   ShopMenu: {fileID: 736732840}
-  PlayerLevelMenu: {fileID: 0}
+  RewardsMenu: {fileID: 0}
   ChestScreen: {fileID: 231941121}
   audioSource: {fileID: 89449406}
   clip: {fileID: 8300000, guid: c832d9674551fad47a48ea143fc4405f, type: 3}
@@ -16922,7 +16922,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -713.43, y: -555.64}
+  m_AnchoredPosition: {x: -682, y: -555.64}
   m_SizeDelta: {x: 347.131, y: 98.672}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &616713033
@@ -16945,7 +16945,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +1000
+  m_text: +100
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2975265f7e44a3242a37fa7e58501217, type: 2}
   m_sharedMaterial: {fileID: 588046360316678949, guid: 2975265f7e44a3242a37fa7e58501217, type: 2}
@@ -31306,6 +31306,7 @@ MonoBehaviour:
   CurrentExp: 0
   NextLevelExp: 0
   ExpRequiredLastlevel: 0
+  GameData: {fileID: 0}
 --- !u!4 &1085996928
 Transform:
   m_ObjectHideFlags: 0
@@ -36992,7 +36993,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1326126744
 RectTransform:
   m_ObjectHideFlags: 0
@@ -46243,7 +46244,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 275, y: 0.00000095367}
+  m_AnchoredPosition: {x: 248, y: 0.00000095367}
   m_SizeDelta: {x: 263.04, y: 247.28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1730137632
@@ -48375,15 +48376,12 @@ MonoBehaviour:
   audioSource: {fileID: 1788321986}
   BuySFX: {fileID: 8300000, guid: 8e299645f0df14941aa833aebc10f822, type: 3}
   UnlockedSFX: {fileID: 8300000, guid: b68424dac46d7764fbd467b76c6b7de3, type: 3}
+  ClaimCoinsButtons: []
+  xpSlider: {fileID: 0}
+  xpMegaSlider: {fileID: 0}
   popScale: 1.1
   popDuration: 0.15
   NotEnoughMoney: {fileID: 2105598287}
-  Inventory:
-  - {fileID: 1962246050}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!4 &1788321985
 Transform:
   m_ObjectHideFlags: 0

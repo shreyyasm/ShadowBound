@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using DG.Tweening;
 using System.Collections;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
-using static PlayerProgression;
+using System;
+using Random = UnityEngine.Random;
 
 public class ChestManager : MonoBehaviour
 {
@@ -48,7 +48,7 @@ public class ChestManager : MonoBehaviour
     bool chestOpened;
     public void OpenChest()
     {
-        if(!chestOpened)
+        if (!chestOpened)
         {
             audioSource.PlayOneShot(OpenChestSFX);
             ResetCardPositions();
@@ -57,9 +57,9 @@ public class ChestManager : MonoBehaviour
             OpenChestIMG.SetActive(true);
             CloseChestIMG.SetActive(false);
         }
-       
-     
-       
+
+
+
     }
     public void ResetCardChest()
     {
@@ -81,7 +81,7 @@ public class ChestManager : MonoBehaviour
 
         List<int> drawnAbilities = DrawCards(probabilities, 5); // Get 5 random cards
 
-      
+
 
         for (int i = 0; i < drawnAbilities.Count; i++)
         {
@@ -125,6 +125,7 @@ public class ChestManager : MonoBehaviour
     }
     public List<GameObject> chestCards; // Cards inside the chest (pre-assigned)
     public List<Transform> cardHolderPositions; // Where the cards will go
+    public AudioClip SuspenseRewardSFX;
     private void MoveCard(int abilityID, int cardIndex)
     {
         if (cardIndex >= chestCards.Count || cardIndex >= cardHolderPositions.Count) return;
@@ -138,7 +139,7 @@ public class ChestManager : MonoBehaviour
         card.transform.DOMove(targetPosition.position, 0.1f).SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
-                
+
                 LeanTween.delayedCall(1f, () => {
                     card.transform.DOScale(1.2f, 0.12f).SetEase(Ease.OutBack).OnComplete(() =>
                     {
@@ -149,23 +150,30 @@ public class ChestManager : MonoBehaviour
                         if (PlayerProgression.Instance.abilities[abilityID].unlocked)
                         {
                             card.GetComponent<CardFlip>().shine.SetActive(true);
+                            LeanTween.delayedCall(1f, () => {
+                                GameManager.instance.OpenCardUnlockedScreen();
+                                audioSource.PlayOneShot(SuspenseRewardSFX);
+                            });
+
+                            LeanTween.delayedCall(3.5f, () => { CardDisplayUnlocked[abilityID].ShowCard(abilityID); MoveCardUnlocked(abilityID, abilityID); });
+
                         }
-                           
+
                     });
                 });
                 // Pop-up effect after reaching position
-               
+
             });
     }
     public void ResetCardPositions()
     {
-        foreach(GameObject i in chestCards)
+        foreach (GameObject i in chestCards)
         {
             i.transform.position = CardsResetPos.transform.position;
             i.GetComponent<CardFlip>().slider.gameObject.SetActive(false);
             i.SetActive(false);
         }
-        foreach(CardDisplay i in cardDisplays)
+        foreach (CardDisplay i in cardDisplays)
         {
             i.abilityNameText.gameObject.SetActive(false);
         }
@@ -209,7 +217,7 @@ public class ChestManager : MonoBehaviour
     public GameObject freeChestOPened;
     public void OpenFreeChest()
     {
-        if(!opened)
+        if (!opened)
         {
             audioSource.PlayOneShot(PlayerProgression.Instance.BuySFX);
             EnemyStatsManager.enemyStats.coins = PlayerProgression.Instance.coins;
@@ -219,7 +227,7 @@ public class ChestManager : MonoBehaviour
             freeChestOPened.SetActive(true);
             opened = true;
         }
-        
+
 
     }
     public GameObject RewardScreen;
@@ -233,5 +241,72 @@ public class ChestManager : MonoBehaviour
         EnemyStatsManager.SaveStats();
         RewardScreen.SetActive(false);
 
+    }
+
+    [Header("CardUnlocked")]
+    public List<GameObject> chestCardsUnlocked; // Cards inside the chest (pre-assigned)
+    public List<Transform> cardHolderPositionsUnlocked; // Where the cards will go
+    public List<CardDisplay> CardDisplayUnlocked; // Where the cards will go
+    public List<GameObject> ClaimButtons;
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            CardUnlocked(0);
+        }
+    }
+
+    public void CardUnlocked(int index)
+    {
+
+
+           
+        LeanTween.delayedCall(0.2f, () => { CardDisplayUnlocked[index].ShowCard(index); MoveCardUnlocked(index, index); });
+      
+        
+    }
+    public void MoveCardUnlocked(int abilityID, int cardIndex)
+    {
+        if (cardIndex >= chestCardsUnlocked.Count || cardIndex >= cardHolderPositionsUnlocked.Count) return;
+
+        GameObject card = chestCardsUnlocked[cardIndex];
+        Transform targetPosition = cardHolderPositionsUnlocked[cardIndex];
+
+        card.transform.SetAsLastSibling(); // Bring card to front for visibility
+        audioSource.PlayOneShot(CardMoveSFX, 0.4f);
+        // Move the card from chest to the holder
+        card.transform.DOMove(targetPosition.position, 0.1f).SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+
+                LeanTween.delayedCall(1f, () => {
+                    card.transform.DOScale(1.2f, 0.12f).SetEase(Ease.OutBack).OnComplete(() =>
+                    {
+                        audioSource.PlayOneShot(CardPopSFX, 0.4f);
+                        ClaimButtons[abilityID].SetActive(true);
+                        card.transform.DOScale(1f, 0.1f);
+                        card.GetComponent<CardDisplay>().abilityNameText.gameObject.SetActive(true);
+                       
+
+                    });
+                });
+                // Pop-up effect after reaching position
+
+            });
+    }
+   
+    public void ResetCardPositionsUnlocked()
+    {
+        foreach (GameObject i in chestCardsUnlocked)
+        {
+            i.transform.position = CardsResetPos.transform.position;
+            i.GetComponent<CardFlip>().slider.gameObject.SetActive(false);
+            i.SetActive(false);
+        }
+        foreach (CardDisplay i in CardDisplayUnlocked)
+        {
+            i.abilityNameText.gameObject.SetActive(false);
+        }
     }
 }
