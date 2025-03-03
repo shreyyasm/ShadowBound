@@ -249,7 +249,7 @@ public class NPCController : MonoBehaviour
 
         }
     }
-
+    public GameObject enemyLight;
     IEnumerator TakeControlEnum()
     {
         //playerController.animator.SetBool("IsConsuming", true);
@@ -264,6 +264,7 @@ public class NPCController : MonoBehaviour
 
         yield return new WaitForSeconds(0.8f);
 
+        enemyLight.SetActive(true);
         abilities.ResetAbilities();
         abilities.BigViewCamera.SetActive(false);
         abilities.container.gameObject.SetActive(true);
@@ -303,7 +304,7 @@ public class NPCController : MonoBehaviour
         if (player.GetComponent<PlayerController>().controlingLife)
         {
             abilities.container.gameObject.SetActive(false);
-            
+            enemyLight.SetActive(false);
             FootaudioSource.Pause();
             check = false;
             GameObject newGameObject = Instantiate(PossesOutVFX, VFXPos.position - new Vector3(0.2f,1f,0), Quaternion.identity);
@@ -408,7 +409,7 @@ public class NPCController : MonoBehaviour
     {
         Caught = true;      
         agent.speed = chaseSpeed;
-        agent.SetDestination(player.transform.position);
+        StartCoroutine(AlertAndChase());
     }
     public void StunMethod()
     {
@@ -517,17 +518,45 @@ public class NPCController : MonoBehaviour
 
         Vector3 directionToPlayer = (player.transform.position - visionOrigin.position).normalized;
         float angleToPlayer = Vector3.Angle(transform.forward, directionToPlayer);
+        float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
 
-        if (angleToPlayer < visionAngle && Vector3.Distance(transform.position, player.transform.position) < visionRange)
+        if (angleToPlayer < visionAngle && distanceToPlayer < visionRange)
         {
             if (Physics.Raycast(visionOrigin.position, directionToPlayer, out RaycastHit hit, visionRange))
             {
+                Debug.DrawRay(visionOrigin.position, directionToPlayer * visionRange, Color.red, 0.1f); // Draw debug ray
+
                 if (hit.collider.gameObject == player)
+                {
+                    Debug.Log("Player detected!"); // Debugging
+                    if (!Caught)
+                    {
+                        postProcessVolumeAlert.SetActive(true);
+                        abilities.BigViewCamera.SetActive(true);
+                        animator.SetBool("IsWalking", false);
+                        alertSign.SetActive(true);
+                        audioSource.PlayOneShot(alertSound);
+                        agent.isStopped = true;
+                        LeanTween.delayedCall(1.5f, () => { Transitioner.Instance.TransitionToFix(); });
+
+                        LeanTween.delayedCall(2.5f, () => { SceneManager.LoadScene(2); });
+                        Caught = true;
+                    }
                     return true;
+                }
+                else
+                {
+                    Debug.Log("Raycast hit: " + hit.collider.gameObject.name); // Debugging
+                }
+            }
+            else
+            {
+                Debug.Log("Raycast did not hit anything");
             }
         }
         return false;
     }
+
 
     private void OnTriggerStay(Collider other)
     {

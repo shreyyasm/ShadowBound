@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Level: Level 1
   LevelIndex: 1
-  NPCSpeed: 6
+  NPCSpeed: 10
   RoamRadius: 10
   RoamDelay: 2
   MoveSpeed: 12
@@ -22,7 +22,7 @@ MonoBehaviour:
   visionRange: 6.5
   visionAngle: 55
   chaseSpeed: 12
-  normalSpeed: 6
+  normalSpeed: 10
   alertDelay: 1
   controlTime: 30
   stunDuration: 3

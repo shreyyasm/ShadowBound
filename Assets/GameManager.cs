@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     public GameObject ChaptersMenu;
     public GameObject InventoryMenu;
     public GameObject ShopMenu;
-    public GameObject PlayerLevelMenu;
+    public GameObject RewardsMenu;
     public GameObject ChestScreen;
 
     public AudioSource audioSource;
@@ -23,6 +23,15 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+    public void OpenRewardsMenu()
+    {
+        RewardsMenu.SetActive(true);
+    }
+    public void CloseRewardsMenu()
+    {
+        RewardsMenu.SetActive(false);
+        audioSource.PlayOneShot(clip, 0.5f);
     }
     public void OpenChaptersMenu()
     {
@@ -60,5 +69,6 @@ public class GameManager : MonoBehaviour
         ChestScreen.SetActive(false);
         audioSource.PlayOneShot(clip, 0.5f);
     }
+
 
 }

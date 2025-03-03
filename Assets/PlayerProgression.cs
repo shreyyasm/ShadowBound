@@ -40,6 +40,8 @@ public class PlayerProgression : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip BuySFX;
     public AudioClip UnlockedSFX;
+
+    public List<GameObject> ClaimCoinsButtons;
     private void Awake()
     {
         Instance = this;
@@ -48,15 +50,16 @@ public class PlayerProgression : MonoBehaviour
     void Start()
     {
         LoadGameData();
-        UpdateUI();
+        UpdatePlayerLevelUI();
         //UpdateInventory();
     }
     public void LoadGameData()
     {
-        playerLevel = stats.enemyStats.LevelIndex;
-        playerXP = stats.enemyStats.playerXP;
+        playerLevel = WhalePassAPI.instance.currentLevel;
+        playerXP = WhalePassAPI.instance.CurrentTotalExp;
 
         coins = stats.enemyStats.coins;
+        coinText.text = "Coins:" + coins.ToString();
         abilities[0].unlocked = stats.enemyStats.AbilityUnlocked[0];
         abilities[1].unlocked = stats.enemyStats.AbilityUnlocked[1];
         abilities[2].unlocked = stats.enemyStats.AbilityUnlocked[2];
@@ -68,6 +71,9 @@ public class PlayerProgression : MonoBehaviour
         abilities[3].cardsHave = stats.enemyStats.AbilityCardsHave[3];
         abilities[4].cardsHave = stats.enemyStats.AbilityCardsHave[4];
         UpdateAllUI();
+       
+        LeanTween.delayedCall(3f, () => { UpdatePlayerLevelUI(); xpSlider.value = WhalePassAPI.instance.CurrentExp; xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp; CheckLevelUp(); });
+       
     }
     private void Update()
     {
@@ -78,31 +84,51 @@ public class PlayerProgression : MonoBehaviour
     }
     public void GainXP(int amount)
     {
+        coinText.text = "Coins:" + coins.ToString();
         playerXP += amount;
         CheckLevelUp();
-        UpdateUI();
+        UpdatePlayerLevelUI();
         stats.enemyStats.playerXP = playerXP;
+        WhalePassAPI.instance.AddExp(amount);
+        WhalePassAPI.instance.PlayerBaseResponse();
+        playerLevel = WhalePassAPI.instance.currentLevel;
         stats.SaveStats();
+    }
+
+    public Slider xpSlider;
+    public Slider xpMegaSlider; // Slider to visually represent XP progress
+    public void UpdatePlayerLevelUI()
+    {
+        if (xpSlider != null)
+        {
+            if (WhalePassAPI.instance.CurrentLevel < 8)
+            {
+                playerLevel = WhalePassAPI.instance.currentLevel;
+                levelText.text = $"Level: {WhalePassAPI.instance.CurrentLevel}";
+                xpText.text = $"Next Level: {WhalePassAPI.instance.CurrentExp} / {WhalePassAPI.instance.NextLevelExp - WhalePassAPI.instance.ExpRequiredLastlevel}";
+                xpSlider.value = WhalePassAPI.instance.CurrentExp;
+                xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp;
+                xpSlider.maxValue = WhalePassAPI.instance.NextLevelExp;
+                coinText.text = "Coins:" + coins.ToString();
+            }
+            else
+            {
+                levelText.text = $"Level: {WhalePassAPI.instance.CurrentLevel}";
+                xpText.text = $"Levels Completed";
+            }
+
+        }
+
     }
 
     void CheckLevelUp()
     {
-        while (playerLevel < xpThresholds.Count && playerXP >= xpThresholds[playerLevel])
+     
+        for(int i = 0; i < playerLevel; i++)
         {
-            playerLevel++;
-            coins += 50; // Reward on level up
-            stats.enemyStats.coins = coins;
-            stats.enemyStats.LevelIndex = playerLevel;
-            stats.enemyStats.playerXP = playerXP;
-            stats.SaveStats();
+            ClaimCoinsButtons[i].GetComponent<Button>().interactable = true;
+            LeanTween.delayedCall(3f, () => { UpdatePlayerLevelUI(); xpSlider.value = WhalePassAPI.instance.CurrentExp; xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp; });
         }
-    }
-
-    void UpdateUI()
-    {
-        levelText.text = "Level: " + playerLevel;
-        xpText.text = "XP: " + playerXP +"/" + xpThresholds[playerLevel];
-        coinText.text = "Coins: " + coins;
     }
 
    
@@ -116,6 +142,7 @@ public class PlayerProgression : MonoBehaviour
         {
             coins -= abilities[abilityIndex].cardvalue;
             stats.enemyStats.coins = coins;
+            coinText.text = "Coins:" +coins.ToString();
             AddCard(abilityIndex);
             audioSource.PlayOneShot(BuySFX);
             stats.SaveStats();
@@ -208,15 +235,5 @@ public class PlayerProgression : MonoBehaviour
             }
         }
     }
-    public List<GameObject> Inventory;
-    public void UpdateInventory()
-    {
-        for(int index = 0;index < Inventory.Count;index++)
-        {
-            if(abilities[index].unlocked)
-            {
-                Inventory[index].SetActive(true);
-            }
-        }
-    }
+  
 }

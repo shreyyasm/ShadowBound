@@ -50,6 +50,8 @@ public class GameData : MonoBehaviour
             //enemyStats.claimedNFT[3] = false;
             //enemyStats.claimedNFT[4] = false;
             //enemyStats.claimedNFT_URL = new List<string>() { "", "", "", "", "" };
+            //enemyStats.LevelIndex = 0;
+            //enemyStats.Level = "Level 0";
             //SaveStats();
         }
 

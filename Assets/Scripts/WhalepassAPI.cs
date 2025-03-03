@@ -97,6 +97,7 @@ public class WhalePassAPI : MonoBehaviour
         {
             Debug.Log(response.succeed);
             Debug.Log(response.responseBody);
+            PlayerBaseResponse();
         });
     }
     public void CheckPlayer_Inventory()
@@ -130,6 +131,7 @@ public class WhalePassAPI : MonoBehaviour
             Debug.Log(response.responseBody);
         });
     }
+    public GameData GameData;
     public void PlayerBaseResponse()
     {
         WhalepassSdkManager.getPlayerBaseProgress(playerId, response =>
@@ -141,7 +143,10 @@ public class WhalePassAPI : MonoBehaviour
             CurrentExp = (int)response.result.currentExp - (int)response.result.expRequiredForLastLevel;
             ExpRequiredLastlevel = (int)response.result.expRequiredForLastLevel;
             //levelManager._playerLevel = (int)response.result.lastCompletedLevel;
-            
+            GameData.enemyStats.playerXP = CurrentTotalExp;
+            GameData.enemyStats.LevelIndex = CurrentLevel;
+            GameData.SaveStats();
+
         });
     }
 }

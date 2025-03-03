@@ -204,5 +204,34 @@ public class ChestManager : MonoBehaviour
 
         }
     }
- 
+    bool opened;
+    public GameObject freeChest;
+    public GameObject freeChestOPened;
+    public void OpenFreeChest()
+    {
+        if(!opened)
+        {
+            audioSource.PlayOneShot(PlayerProgression.Instance.BuySFX);
+            EnemyStatsManager.enemyStats.coins = PlayerProgression.Instance.coins;
+            GameManager.instance.OpenChestMenu();
+            PlayerProgression.Instance.UpdateAllUI();
+            freeChest.SetActive(false);
+            freeChestOPened.SetActive(true);
+            opened = true;
+        }
+        
+
+    }
+    public GameObject RewardScreen;
+
+    public void TakeRewards()
+    {
+        PlayerProgression.Instance.playerXP += 1000;
+        PlayerProgression.Instance.coins += 1000;
+        EnemyStatsManager.enemyStats.playerXP += 1000;
+        EnemyStatsManager.enemyStats.coins += 1000;
+        EnemyStatsManager.SaveStats();
+        RewardScreen.SetActive(false);
+
+    }
 }
