@@ -33,7 +33,7 @@ public class CardDisplay : MonoBehaviour
     public void ShowCard(int abilityID)
     {
         cardVisual.SetActive(true);
-        abilityNameText.text = "Ability " + abilityID;
+        //abilityNameText.text = "Ability " + abilityID;
         CardFront[abilityID].SetActive(true);
         cardFlip.frontCard =   CardFront[abilityID];
         cardFlip.backCard = CardBack[abilityID];

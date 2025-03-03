@@ -5,6 +5,7 @@ using DG.Tweening;
 using System.Collections;
 using System;
 using Random = UnityEngine.Random;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public class ChestManager : MonoBehaviour
 {
@@ -145,9 +146,9 @@ public class ChestManager : MonoBehaviour
                     {
                         audioSource.PlayOneShot(CardPopSFX, 0.4f);
                         card.transform.DOScale(1f, 0.1f);
-                        card.GetComponent<CardFlip>().slider.gameObject.SetActive(true);
-                        card.GetComponent<CardDisplay>().abilityNameText.gameObject.SetActive(true);
-                        if (PlayerProgression.Instance.abilities[abilityID].unlocked)
+                        //card.GetComponent<CardFlip>().slider.gameObject.SetActive(true);
+                        //card.GetComponent<CardDisplay>().abilityNameText.gameObject.SetActive(true);
+                        if (PlayerProgression.Instance.abilities[abilityID].unlocked && PlayerProgression.Instance.abilities[abilityID].cardsHave <= 10)
                         {
                             card.GetComponent<CardFlip>().shine.SetActive(true);
                             LeanTween.delayedCall(1f, () => {
@@ -173,10 +174,7 @@ public class ChestManager : MonoBehaviour
             i.GetComponent<CardFlip>().slider.gameObject.SetActive(false);
             i.SetActive(false);
         }
-        foreach (CardDisplay i in cardDisplays)
-        {
-            i.abilityNameText.gameObject.SetActive(false);
-        }
+       
     }
     public void CloseChest()
     {
@@ -204,6 +202,7 @@ public class ChestManager : MonoBehaviour
             GameManager.instance.OpenChestMenu();
             PlayerProgression.Instance.UpdateAllUI();
             EnemyStatsManager.SaveStats();
+
         }
         else
         {
@@ -223,6 +222,11 @@ public class ChestManager : MonoBehaviour
             EnemyStatsManager.enemyStats.coins = PlayerProgression.Instance.coins;
             GameManager.instance.OpenChestMenu();
             PlayerProgression.Instance.UpdateAllUI();
+            for(int i = 0;i < 5;i++)
+            {
+                PlayerProgression.Instance.UpdateCardUI(i);
+            }
+            
             freeChest.SetActive(false);
             freeChestOPened.SetActive(true);
             opened = true;
@@ -238,6 +242,12 @@ public class ChestManager : MonoBehaviour
         PlayerProgression.Instance.coins += 1000;
         EnemyStatsManager.enemyStats.playerXP += 1000;
         EnemyStatsManager.enemyStats.coins += 1000;
+       
+       
+        PlayerProgression.Instance.UpdatePlayerLevelUI();
+        WhalePassAPI.instance.AddExp(1000);
+        WhalePassAPI.instance.PlayerBaseResponse();
+        playerLevel = WhalePassAPI.instance.currentLevel;
         EnemyStatsManager.SaveStats();
         RewardScreen.SetActive(false);
 

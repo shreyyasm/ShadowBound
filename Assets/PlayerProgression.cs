@@ -223,7 +223,7 @@ public class PlayerProgression : MonoBehaviour
         }
     }
 
-    void UpdateCardUI(int index)
+    public void UpdateCardUI(int index)
     {
         abilities[index].cardSlider.value = (float)abilities[index].cardsHave / abilities[index].cardsNeed;
         abilities[index].cardsText.text = abilities[index].cardsHave + "/" + abilities[index].cardsNeed;

@@ -31,6 +31,7 @@ public class LevelClear : MonoBehaviour
     {
         Transitioner.Instance.TransitionToFix();
         ChapterManager.instance.CompleteChapter(CurrentChapter);
+        PlayerPrefs.SetInt("LastCompletedChapter", CurrentChapter);
         LeanTween.delayedCall(1f, () => { SceneManager.LoadScene("Level Clear"); });
        
     }
