@@ -110,7 +110,8 @@ public class Abilities : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && NPCController.isControlled && !isRotating && Playerabilities[3].AbilityState)
         {
-            StartCoroutine(Teleport());
+            if (teleportIndicator.gameObject.GetComponent<TeleportPlatform>() != null && teleportIndicator.gameObject.GetComponent<TeleportPlatform>().canTeleport)               
+                StartCoroutine(Teleport());
         }
 
         if (!usingAbility && NPCController.isControlled)
@@ -301,6 +302,7 @@ public class Abilities : MonoBehaviour
     IEnumerator Teleport()
     {
         if (!canTeleport) yield break;
+
         canTeleport = false;
         ///animator.SetTrigger("TeleportStart");
         Instantiate(TeleportVFX, teleportIndicator.position + new Vector3(0, 1f, 0), Quaternion.identity);
@@ -319,6 +321,7 @@ public class Abilities : MonoBehaviour
         NPCController.rb.isKinematic = false; // Re-enable physics
 
         yield return new WaitForSeconds(teleportCooldown);
+        teleportIndicator.gameObject.GetComponent<TeleportPlatform>().canTeleport = false;
         audioSource.PlayOneShot(TeleportOnSFX, 1f);
         teleportIndicator.gameObject.SetActive(true);
         canTeleport = true;
@@ -339,6 +342,7 @@ public class Abilities : MonoBehaviour
                     Vector3 mousePosition = mouseRay.GetPoint(hitDistance);
                     Vector3 direction = (mousePosition - transform.position).normalized;
                     teleportIndicator.position = transform.position + direction * teleportRadius;
+                   
                 }
                 
             }

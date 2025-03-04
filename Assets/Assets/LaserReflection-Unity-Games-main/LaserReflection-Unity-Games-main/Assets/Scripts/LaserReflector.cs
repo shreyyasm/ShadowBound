@@ -16,6 +16,8 @@ public class LaserReflector : MonoBehaviour
     public bool gateOpened;
     GameObject tempReflector;
     public DoorController DoorController;
+    public AudioSource audioSource;
+    public AudioClip clip;
     void Start()
     {
         isOpen = false;
@@ -31,7 +33,7 @@ public class LaserReflector : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(position, direction, out hit, Mathf.Infinity))
             {
-                if (hit.collider.CompareTag("Reflector") && hit.collider.CompareTag("Grabble"))
+                if (hit.collider.CompareTag("Reflector") || hit.collider.CompareTag("Grabble"))
                 {
                     tempReflector = hit.collider.gameObject;
                     Vector3 temp = Vector3.Reflect(direction, hit.normal);
@@ -40,8 +42,10 @@ public class LaserReflector : MonoBehaviour
                 if(hit.collider.CompareTag("Receiver") && !gateOpened)
                 {
                     DoorController.OpenFinalDoor();
-                    gateOpened = true;
+                   
+                    audioSource.PlayOneShot(clip);
                     Debug.Log("Laser Received");
+                    gateOpened = true;
                     //HomingMissileSystem.instance.LaunchMissiles();
                 }
                 lr.SetPosition(1, hit.point);

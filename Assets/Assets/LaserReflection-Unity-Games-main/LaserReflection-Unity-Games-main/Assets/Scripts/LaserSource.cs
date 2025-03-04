@@ -15,7 +15,9 @@ public class LaserSource : MonoBehaviour
         lr.positionCount = 2;
         lr.SetPosition(0, laserStartPoint.position);
     }
-
+    public AudioSource audioSource;
+    public AudioClip clip;
+    public bool gateOpened;
     void Update()
     {
         Vector3 direction = laserStartPoint.forward; // Update direction dynamically
@@ -29,10 +31,12 @@ public class LaserSource : MonoBehaviour
                 Vector3 reflectedDirection = Vector3.Reflect(direction, hit.normal);
                 hit.collider.gameObject.GetComponent<LaserReflector>().OpenRay(hit.point, reflectedDirection);
             }
-            else if (hit.collider.CompareTag("Receiver"))
+            else if (hit.collider.CompareTag("Receiver") && !gateOpened)
             {
                 Debug.Log("Laser Received");
                 doorController.OpenFinalDoor();
+                audioSource.PlayOneShot(clip);
+                gateOpened = true;
             }
 
             lr.SetPosition(1, hit.point);

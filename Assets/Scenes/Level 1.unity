@@ -5118,7 +5118,7 @@ MonoBehaviour:
   m_Follow: {fileID: 249273936}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 12
+    OrthographicSize: 15
     NearClipPlane: -27.08
     FarClipPlane: 1000
     Dutch: 0
@@ -11101,6 +11101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOpen: 0
   gateOpened: 0
+  DoorController: {fileID: 0}
 --- !u!114 &555421730
 MonoBehaviour:
   m_ObjectHideFlags: 2
@@ -11691,6 +11692,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laserStartPoint: {fileID: 793152370}
+  doorController: {fileID: 0}
 --- !u!1001 &581682761
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13852,6 +13854,7 @@ MonoBehaviour:
   nameInputField: {fileID: 0}
   playerId: 
   playerNameMenu: {fileID: 0}
+  playerNameText: {fileID: 0}
   currentLevel: 0
   CurrentTotalExp: 0
   CurrentExp: 0
@@ -19536,7 +19539,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 9
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -20544,7 +20547,7 @@ MonoBehaviour:
   m_Follow: {fileID: 249273936}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 9
+    OrthographicSize: 10
     NearClipPlane: -27.08
     FarClipPlane: 1000
     Dutch: 0

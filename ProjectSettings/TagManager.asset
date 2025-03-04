@@ -13,6 +13,8 @@ TagManager:
   - Receiver
   - FxTemporaire
   - Grabble
+  - FX
+  - Tiles
   layers:
   - Default
   - TransparentFX
