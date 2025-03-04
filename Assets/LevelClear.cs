@@ -5,13 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class LevelClear : MonoBehaviour
 {
+    public static LevelClear Instance;
     public AudioSource audioSource;
     public AudioClip clearLevelSound;
     public int CurrentChapter;
     // Start is called before the first frame update
     void Start()
     {
-        
+        Instance = this;
     }
 
     // Update is called once per frame

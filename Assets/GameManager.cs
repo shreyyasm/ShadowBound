@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviour
     {
         CardUnlockedScreen.SetActive(false);
         audioSource.PlayOneShot(clip, 0.5f);
+      
     }
     public void OpenRewardsMenu()
     {
@@ -65,6 +66,7 @@ public class GameManager : MonoBehaviour
     public void OpenInventoryMenu()
     {
         InventoryMenu.SetActive(true);
+        PlayerInventory.Instance.LoadInventory();
     }
     public void CloseInventoryMenu()
     {

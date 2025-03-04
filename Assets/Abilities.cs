@@ -80,19 +80,21 @@ public class Abilities : MonoBehaviour
  
     private void Start()
     {
-        Dash = EnemyStatsManager.enemyStats.AbilityUnlocked[0];
-        MoveObjects = EnemyStatsManager.enemyStats.AbilityUnlocked[1];
-        RotateObjects = EnemyStatsManager.enemyStats.AbilityUnlocked[2];
-        TeleportPlayer = EnemyStatsManager.enemyStats.AbilityUnlocked[3];
-        DistanceConsume = EnemyStatsManager.enemyStats.AbilityUnlocked[4];
+       
 
-        Playerabilities[0].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[0];
-        Playerabilities[1].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[1];
-        Playerabilities[2].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[2];
-        Playerabilities[3].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[3];
-        Playerabilities[4].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[4];
+        LeanTween.delayedCall(1f, () => {
+            Dash = EnemyStatsManager.enemyStats.AbilityUnlocked[0];
+            MoveObjects = EnemyStatsManager.enemyStats.AbilityUnlocked[1];
+            RotateObjects = EnemyStatsManager.enemyStats.AbilityUnlocked[2];
+            TeleportPlayer = EnemyStatsManager.enemyStats.AbilityUnlocked[3];
+            DistanceConsume = EnemyStatsManager.enemyStats.AbilityUnlocked[4];
 
-        LeanTween.delayedCall(1f, () => { LoadAbilityCards(); });
+            Playerabilities[0].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[0];
+            Playerabilities[1].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[1];
+            Playerabilities[2].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[2];
+            Playerabilities[3].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[3];
+            Playerabilities[4].AbilityUnlocked = EnemyStatsManager.enemyStats.AbilityUnlocked[4]; 
+            LoadAbilityCards(); });
       
     }
 
@@ -153,7 +155,7 @@ public class Abilities : MonoBehaviour
         if (grabbedObject != null && isRotating)
         {
             // Keep the object floating in front of the player
-            grabbedObject.transform.position = new Vector3(grabbedObject.transform.position.x, 1.5f, grabbedObject.transform.position.z);
+            grabbedObject.transform.position = new Vector3(grabPoint.transform.position.x, 2f, grabPoint.transform.position.z);
         }
     }
 
@@ -218,6 +220,7 @@ public class Abilities : MonoBehaviour
                 grabbedObject.GetComponent<Rigidbody>().useGravity = false;
 
             }
+
                 
         }
     }
@@ -227,10 +230,10 @@ public class Abilities : MonoBehaviour
         usingAbility = true;
         if (grabbedObject != null)
         {
-            if (Input.GetKeyDown(KeyCode.W))
-                SnapRotate(grabbedObject.transform.right);
-            if (Input.GetKeyDown(KeyCode.S))
-                SnapRotate(-grabbedObject.transform.right);
+            //if (Input.GetKeyDown(KeyCode.W))
+            //    SnapRotate(grabbedObject.transform.right);
+            //if (Input.GetKeyDown(KeyCode.S))
+            //    SnapRotate(-grabbedObject.transform.right);
             if (Input.GetKeyDown(KeyCode.A))
                 SnapRotate(Vector3.up);
             if (Input.GetKeyDown(KeyCode.D))

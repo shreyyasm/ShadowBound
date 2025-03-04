@@ -34,7 +34,7 @@ public class PressureButton : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Main") || other.CompareTag("Grabble"))
         {
             isPlayerOnButton = true;
         }
@@ -42,7 +42,7 @@ public class PressureButton : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Main") || other.CompareTag("Grabble"))
         {
             isPlayerOnButton = false;
         }

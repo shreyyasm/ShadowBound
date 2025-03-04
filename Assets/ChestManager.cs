@@ -261,20 +261,12 @@ public class ChestManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            CardUnlocked(0);
-        }
+       
     }
 
     public void CardUnlocked(int index)
     {
-
-
-           
-        LeanTween.delayedCall(0.2f, () => { CardDisplayUnlocked[index].ShowCard(index); MoveCardUnlocked(index, index); });
-      
-        
+        LeanTween.delayedCall(0.2f, () => { CardDisplayUnlocked[index].ShowCard(index); MoveCardUnlocked(index, index); });  
     }
     public void MoveCardUnlocked(int abilityID, int cardIndex)
     {

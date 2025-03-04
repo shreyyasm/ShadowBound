@@ -78,10 +78,10 @@ public class PlayerProgression : MonoBehaviour
     }
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            GainXP(100);
-        }
+        //if(Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    GainXP(100);
+        //}
     }
     public void GainXP(int amount)
     {

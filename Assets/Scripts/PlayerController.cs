@@ -117,25 +117,25 @@ public class PlayerController : MonoBehaviour
 
     void HandleDash()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
-        {
-            animator.SetBool("IsDashing", true);
-            isDashing = true;
+        //if (Input.GetKeyDown(KeyCode.Space) && Time.time > lastDashTime + dashCooldown && moveDirection != Vector3.zero)
+        //{
+        //    //animator.SetBool("IsDashing", true);
+        //    //isDashing = true;
             
-            dashTime = Time.time + dashDuration;
-            lastDashTime = Time.time;
-            rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
-        }
+        //    //dashTime = Time.time + dashDuration;
+        //    //lastDashTime = Time.time;
+        //    //rb.velocity = moveDirection * dashSpeed; // Apply dash velocity
+        //}
 
-        if (isDashing)
-        {
-            if (Time.time >= dashTime)
-            {
-                isDashing = false;
-                animator.SetBool("IsDashing", false);
+        //if (isDashing)
+        //{
+        //    if (Time.time >= dashTime)
+        //    {
+        //        isDashing = false;
+        //        animator.SetBool("IsDashing", false);
                
-            }
-        }
+        //    }
+        //}
     }
 
     public NPCController closestEnemy;

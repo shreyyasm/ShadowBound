@@ -396,7 +396,7 @@ public class NPCController : MonoBehaviour
             agent.isStopped = true;
             LeanTween.delayedCall(1.5f, () => { Transitioner.Instance.TransitionToFix(); });
 
-            LeanTween.delayedCall(2.5f, () => { SceneManager.LoadScene(2); });
+            LeanTween.delayedCall(2.5f, () => { SceneManager.LoadScene("Level " + LevelClear.Instance.CurrentChapter); });
             Caught = true;
         }
         
@@ -539,7 +539,7 @@ public class NPCController : MonoBehaviour
                         agent.isStopped = true;
                         LeanTween.delayedCall(1.5f, () => { Transitioner.Instance.TransitionToFix(); });
 
-                        LeanTween.delayedCall(2.5f, () => { SceneManager.LoadScene(2); });
+                        LeanTween.delayedCall(2.5f, () => { SceneManager.LoadScene("Level " + LevelClear.Instance.CurrentChapter); });
                         Caught = true;
                     }
                     return true;

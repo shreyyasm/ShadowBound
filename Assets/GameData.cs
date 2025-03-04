@@ -52,6 +52,7 @@ public class GameData : MonoBehaviour
             //enemyStats.claimedNFT_URL = new List<string>() { "", "", "", "", "" };
             //enemyStats.LevelIndex = 0;
             //enemyStats.Level = "Level 0";
+            //enemyStats.coins = 100000;
             //SaveStats();
         }
 
@@ -69,8 +70,8 @@ public class GameData : MonoBehaviour
             Debug.Log("No save file found, creating default stats.");
             enemyStats = new GameStatsData()
             {
-                Level = "Level 1",
-                LevelIndex = 1,
+                Level = "Level 0",
+                LevelIndex = 0,
                 playerXP = 0,
                 coins = 100000,
                 AbilityUnlocked = new List<bool>() { false, false, false, false, false },

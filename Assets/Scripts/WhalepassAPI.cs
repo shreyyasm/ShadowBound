@@ -18,6 +18,7 @@ public class WhalePassAPI : MonoBehaviour
     public string playerId = "PlayerName";
     public GameObject playerNameMenu; // Assign this in the Inspector
 
+    public TextMeshProUGUI playerNameText;
     public int currentLevel;
     public int CurrentTotalExp;
     public int CurrentExp;
@@ -44,28 +45,36 @@ public class WhalePassAPI : MonoBehaviour
         if(instance == null)
             instance = this;
 
+        playerNameText.text = PlayerPrefs.GetString(playerId);
         // Load the saved name if it exists
-        if (PlayerPrefs.HasKey(playerId))
-        {
-            string savedName = PlayerPrefs.GetString(playerId);
+         string savedName = PlayerPrefs.GetString(playerId);
             if (!string.IsNullOrEmpty(savedName))
             {
+                
                 playerId = PlayerPrefs.GetString(playerId);
-                playerNameMenu.SetActive(false); // Hide menu if name exists
-                EnrollPlayer();
-                CheckPlayer_Inventory();
-                GettingBattlePass();
-                PlayerBaseResponse();
-                return;
+                if(playerNameMenu != null)
+                {
+                    playerNameMenu.SetActive(false); // Hide menu if name exists
+                    EnrollPlayer();
+                    CheckPlayer_Inventory();
+                    GettingBattlePass();
+                    PlayerBaseResponse();
+                    return;
+                }
+               
             }
-        }
-        playerNameMenu.SetActive(true); // Show menu if no name is set
-
-       
-        //LeanTween.delayedCall(2f, () => { levelManager.UpdateUI(); });
         
-    }
+       
 
+        //LeanTween.delayedCall(2f, () => { levelManager.UpdateUI(); });
+
+    }
+    public void CheckName()
+    {
+        string savedName = PlayerPrefs.GetString(playerId);
+        if (!string.IsNullOrEmpty(savedName))
+            playerNameMenu.SetActive(false); // Show menu if no name is set
+    }
 
     public void SavePlayerName()
     {
@@ -75,11 +84,14 @@ public class WhalePassAPI : MonoBehaviour
         {
             PlayerPrefs.SetString(playerId, playerName);
             PlayerPrefs.Save();
+            playerId = PlayerPrefs.GetString(playerName);
+            playerNameText.text = PlayerPrefs.GetString(playerId);
             playerNameMenu.SetActive(false); // Hide menu after saving
             EnrollPlayer();
             CheckPlayer_Inventory();
             GettingBattlePass();
             PlayerBaseResponse();
+            
         }
     }
 

@@ -5,32 +5,36 @@ using UnityEngine;
 public class LaserSource : MonoBehaviour
 {
     [SerializeField] Transform laserStartPoint;
-    Vector3 direction;
     LineRenderer lr;
     GameObject tempReflector;
+    public DoorController doorController; 
+
     void Start()
     {
         lr = gameObject.GetComponent<LineRenderer>();
-        direction = laserStartPoint.forward;
         lr.positionCount = 2;
         lr.SetPosition(0, laserStartPoint.position);
     }
+
     void Update()
     {
+        Vector3 direction = laserStartPoint.forward; // Update direction dynamically
         RaycastHit hit;
-        if(Physics.Raycast(laserStartPoint.position,direction,out hit, Mathf.Infinity))
+
+        if (Physics.Raycast(laserStartPoint.position, direction, out hit, Mathf.Infinity))
         {
-            if (hit.collider.CompareTag("Reflector"))
+            if (hit.collider.CompareTag("Reflector") || hit.collider.CompareTag("Grabble"))
             {
                 tempReflector = hit.collider.gameObject;
-                Vector3 temp = Vector3.Reflect(direction, hit.normal);
-                hit.collider.gameObject.GetComponent<LaserReflector>().OpenRay(hit.point, temp);
+                Vector3 reflectedDirection = Vector3.Reflect(direction, hit.normal);
+                hit.collider.gameObject.GetComponent<LaserReflector>().OpenRay(hit.point, reflectedDirection);
             }
-            if (hit.collider.CompareTag("Receiver"))
+            else if (hit.collider.CompareTag("Receiver"))
             {
                 Debug.Log("Laser Received");
-               
+                doorController.OpenFinalDoor();
             }
+
             lr.SetPosition(1, hit.point);
         }
         else
@@ -38,9 +42,14 @@ public class LaserSource : MonoBehaviour
             if (tempReflector)
             {
                 tempReflector.GetComponent<LaserReflector>().CloseRay();
-                tempReflector=null;
+                tempReflector = null;
             }
-            lr.SetPosition(1, direction * 200);
+
+            // Ensure the laser continues straight
+            lr.SetPosition(1, laserStartPoint.position + direction * 200);
         }
+
+        // Update the laser start position
+        lr.SetPosition(0, laserStartPoint.position);
     }
 }
