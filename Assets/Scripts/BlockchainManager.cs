@@ -86,9 +86,10 @@ using Thirdweb;
 
         private void InitializePanels()
         {
-            //CloseAllPanels();
-
-            ConnectWalletPanel.SetActive(true);
+        //CloseAllPanels();
+        WalletAddress = PlayerPrefs.GetString("WalletAdress");
+            if(WalletAddress == "") 
+                ConnectWalletPanel.SetActive(true);
 
             PrivateKeyWalletButton.onClick.RemoveAllListeners();
             PrivateKeyWalletButton.onClick.AddListener(() =>
@@ -107,7 +108,7 @@ using Thirdweb;
                 ConnectWallet(options);
             });
         }
-
+    public string WalletAddress;
         private async void ConnectWallet(WalletOptions options)
         {
             // Connect the wallet
@@ -123,44 +124,10 @@ using Thirdweb;
 
             CloseAllPanels();
 
-            // Setup actions
-
-            //ClearLog(currentPanel.LogText);
-            //currentPanel.Panel.SetActive(true);
-
-            //currentPanel.BackButton.onClick.RemoveAllListeners();
-            //currentPanel.BackButton.onClick.AddListener(InitializePanels);
-
-            //currentPanel.NextButton.onClick.RemoveAllListeners();
-            //currentPanel.NextButton.onClick.AddListener(InitializeContractsPanel);
-
-            //currentPanel.Action1Button.onClick.RemoveAllListeners();
-            //currentPanel.Action1Button.onClick.AddListener(async () =>
-            //{
-            //    var address = await wallet.GetAddress();
-            //    address.CopyToClipboard();
-            //    Log(currentPanel.LogText, $"Address: {address}");
-            //});
-
-            //currentPanel.Action2Button.onClick.RemoveAllListeners();
-            //currentPanel.Action2Button.onClick.AddListener(async () =>
-            //{
-            //    var message = "Hello World!";
-            //    var signature = await wallet.PersonalSign(message);
-            //    Log(currentPanel.LogText, $"Signature: {signature}");
-            //});
-
-            //currentPanel.Action3Button.onClick.RemoveAllListeners();
-            //currentPanel.Action3Button.onClick.AddListener(async () =>
-            //{
-            //    LoadingLog(currentPanel.LogText);
-            //    var balance = await wallet.GetBalance(chainId: ActiveChainId);
-            //    var balanceEth = Utils.ToEth(wei: balance.ToString(), decimalsToDisplay: 4, addCommas: true);
-            //    Log(currentPanel.LogText, $"Balance: {balanceEth} {_chainDetails.NativeCurrency.Symbol}");
-            //});
-
             CheckName();
             var address = await wallet.GetAddress();
+            PlayerPrefs.SetString("WalletAdress", address);
+       
             Log(currentPanel.LogText, $"Address: {address}");
             playerWalletAddress.text = address;
 

@@ -47,6 +47,10 @@ public class ChestManager : MonoBehaviour
     public GameObject OpenChestIMG;
     public GameObject CloseChestIMG;
     bool chestOpened;
+    private void Start()
+    {
+        playerLevel = WhalePassAPI.instance.CurrentLevel;
+    }
     public void OpenChest()
     {
         if (!chestOpened)
@@ -77,6 +81,7 @@ public class ChestManager : MonoBehaviour
     }
     private IEnumerator DisplayChestRewards()
     {
+        playerLevel = WhalePassAPI.instance.CurrentLevel;
         int level = playerLevel;
         List<AbilityProbability> probabilities = GetProbabilitiesForLevel(level);
 

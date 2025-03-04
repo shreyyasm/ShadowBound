@@ -73,7 +73,13 @@ public class PlayerProgression : MonoBehaviour
         abilities[4].cardsHave = stats.enemyStats.AbilityCardsHave[4];
         UpdateAllUI();
        
-        LeanTween.delayedCall(3f, () => { UpdatePlayerLevelUI(); xpSlider.value = WhalePassAPI.instance.CurrentExp; xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp; CheckLevelUp(); });
+        LeanTween.delayedCall(1f, () => { 
+            UpdatePlayerLevelUI(); 
+            if(xpSlider != null)
+                xpSlider.value = WhalePassAPI.instance.CurrentExp; 
+            if(xpMegaSlider != null)
+                xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp; 
+            CheckLevelUp(); });
        
     }
     private void Update()
@@ -108,7 +114,8 @@ public class PlayerProgression : MonoBehaviour
                 levelText.text = $"Level: {WhalePassAPI.instance.CurrentLevel}";
                 xpText.text = $"Next Level: {WhalePassAPI.instance.CurrentExp} / {WhalePassAPI.instance.NextLevelExp - WhalePassAPI.instance.ExpRequiredLastlevel}";
                 xpSlider.value = WhalePassAPI.instance.CurrentExp;
-                xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp;
+                if( xpMegaSlider != null )
+                    xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp;
                 xpSlider.maxValue = WhalePassAPI.instance.NextLevelExp;
                 coinText.text = "Coins:" + coins.ToString();
             }
@@ -232,11 +239,11 @@ public class PlayerProgression : MonoBehaviour
     {
         for (int index = 0; index < abilities.Count; index++)
         {
-            Debug.Log(abilities[index].BuyText);
+            //Debug.Log(abilities[index].BuyText);
             //abilities[index].BuyText.text = "Buy " + abilities[index].cardvalue;
             abilities[index].cardSlider.value = (float)abilities[index].cardsHave / abilities[index].cardsNeed;
             abilities[index].cardsText.text = abilities[index].cardsHave + "/" + abilities[index].cardsNeed;
-            if (abilities[index].cardsHave == abilities[index].cardsNeed)
+            if (abilities[index].cardsHave >= abilities[index].cardsNeed)
             {
                 abilities[index].BuyButton.SetActive(false);
                 abilities[index].UnlockedText.SetActive(true);

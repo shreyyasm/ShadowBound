@@ -105,7 +105,7 @@ public class CardFlip : MonoBehaviour
     {
         if (isFlipping && isFlipped)
         {
-            Debug.Log("Leave");
+            //Debug.Log("Leave");
             isFlipping = false;
             isFlippingBack = true;
             isFlipped = false;

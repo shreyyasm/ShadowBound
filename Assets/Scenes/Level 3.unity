@@ -4818,7 +4818,7 @@ MonoBehaviour:
   drawingMode: 16
   outlineLayer: 0
   outlineTargets:
-  - IsVisible: 1
+  - IsVisible: 0
     CutoutMask: 8
     edgeDilateAmount: 5
     frontEdgeDilateAmount: 5
@@ -32905,7 +32905,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &659135403
 Transform:
   m_ObjectHideFlags: 0
@@ -67151,14 +67151,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1431757530}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 50.84, y: 41.158527, z: 121.03}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 16.941269, y: 0, z: 68.10707}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1992500179}
   - {fileID: 95592259}
-  m_Father: {fileID: 1740541617}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1434180941
 PrefabInstance:
@@ -80486,7 +80486,6 @@ Transform:
   - {fileID: 46176605}
   - {fileID: 2145293028}
   - {fileID: 2140255412}
-  - {fileID: 1431757531}
   - {fileID: 566807826}
   - {fileID: 1554471120}
   - {fileID: 511930357}
@@ -94388,7 +94387,7 @@ MonoBehaviour:
   drawingMode: 1
   outlineLayer: 0
   outlineTargets:
-  - IsVisible: 1
+  - IsVisible: 0
     CutoutMask: 8
     edgeDilateAmount: 5
     frontEdgeDilateAmount: 5
@@ -98249,7 +98248,7 @@ MonoBehaviour:
   drawingMode: 1
   outlineLayer: 0
   outlineTargets:
-  - IsVisible: 1
+  - IsVisible: 0
     CutoutMask: 8
     edgeDilateAmount: 5
     frontEdgeDilateAmount: 5
@@ -98583,7 +98582,7 @@ MonoBehaviour:
   drawingMode: 16
   outlineLayer: 0
   outlineTargets:
-  - IsVisible: 1
+  - IsVisible: 0
     CutoutMask: 8
     edgeDilateAmount: 5
     frontEdgeDilateAmount: 5
@@ -102380,6 +102379,7 @@ SceneRoots:
   - {fileID: 759544998}
   - {fileID: 1959029387}
   - {fileID: 395636772}
-  - {fileID: 467538269}
-  - {fileID: 543450652088404212}
   - {fileID: 1924184254}
+  - {fileID: 1431757531}
+  - {fileID: 543450652088404212}
+  - {fileID: 467538269}

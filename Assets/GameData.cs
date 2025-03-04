@@ -73,7 +73,7 @@ public class GameData : MonoBehaviour
                 Level = "Level 0",
                 LevelIndex = 0,
                 playerXP = 0,
-                coins = 100000,
+                coins = 1000,
                 AbilityUnlocked = new List<bool>() { false, false, false, false, false },
                 claimedNFT = new List<bool>() { false, false, false, false, false },
                 AbilityCardsHave = new List<int>() { 0, 0, 0, 0, 0 },

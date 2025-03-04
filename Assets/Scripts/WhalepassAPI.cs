@@ -45,7 +45,8 @@ public class WhalePassAPI : MonoBehaviour
         if(instance == null)
             instance = this;
 
-        playerNameText.text = PlayerPrefs.GetString(playerId);
+        if(playerNameText != null) 
+            playerNameText.text = PlayerPrefs.GetString(playerId);
         // Load the saved name if it exists
          string savedName = PlayerPrefs.GetString(playerId);
             if (!string.IsNullOrEmpty(savedName))

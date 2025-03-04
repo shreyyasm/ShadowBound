@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,11 +17,33 @@ public class GameManager : MonoBehaviour
 
     public AudioSource audioSource;
     public AudioClip clip;
+
+    public TextMeshProUGUI ButtonNameChange;
+    public int Cutscene = 0;
     private void Awake()
     {
         instance = this;
     }
+    private void Start()
+    {
+        Cutscene = PlayerPrefs.GetInt("CutScene");
+        if (Cutscene == 1)
+        {
+            if(ButtonNameChange != null)
+                ButtonNameChange.text = "Continue";
+        }
+    }
+    public void PlayGame()
+    {
+        Cutscene = PlayerPrefs.GetInt("CutScene");
+        if(Cutscene == 0)
+            SceneManager.LoadScene("Cut scene");
+        else
+            SceneManager.LoadScene("Level " + (PlayerPrefs.GetInt("LastCompletedChapter") + 1));
 
+
+
+    }
     // Update is called once per frame
     void Update()
     {

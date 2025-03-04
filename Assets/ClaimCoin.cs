@@ -29,7 +29,7 @@ public class ClaimCoin : MonoBehaviour
     {
 
         PlayerProgression.Instance.coins += coins;
-        PlayerProgression.Instance.coinText.text = "Coins:" + coins.ToString();
+        PlayerProgression.Instance.coinText.text = "Coins:" + PlayerProgression.Instance.coins.ToString();
         gameData.enemyStats.coins += coins;
         gameData.SaveStats();
         gameObject.SetActive(false);
