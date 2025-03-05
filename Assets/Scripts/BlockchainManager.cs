@@ -267,8 +267,9 @@ using Thirdweb;
             PlayerInventory.Instance.Inventory[index].NFT_url = snowtraceUrl;
             PlayerInventory.Instance.stats.enemyStats.claimedNFT_URL[index] = snowtraceUrl;
             PlayerInventory.Instance.stats.enemyStats.claimedNFT[index] = true;
-           
-            PlayerInventory.Instance.stats.SaveStats();
+            PlayerInventory.Instance.Inventory[index].ClaimButton.SetActive(false);
+
+        PlayerInventory.Instance.stats.SaveStats();
             LeanTween.delayedCall(2f, () => { PlayerInventory.Instance.LoadInventory(); });
         
 

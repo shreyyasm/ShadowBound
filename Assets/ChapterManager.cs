@@ -13,6 +13,9 @@ public class ChapterManager : MonoBehaviour
     public List<GameObject> lockedUIElements = new List<GameObject>();
     public int unlockedChapters;
 
+    public AudioSource audioSource;
+    public AudioClip AudioClip;
+
     private void Awake()
     {
         instance = this;
@@ -38,6 +41,7 @@ public class ChapterManager : MonoBehaviour
         {
             //Debug.Log("Loading Chapter: " + (chapterIndex + 1));
             SceneManager.LoadScene("Level " + (chapterIndex));
+            audioSource.PlayOneShot(AudioClip);
         }
     }
 

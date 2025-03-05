@@ -131,12 +131,22 @@ public class PlayerProgression : MonoBehaviour
 
     void CheckLevelUp()
     {
-     
-        for(int i = 0; i < playerLevel; i++)
+        if(ClaimCoinsButtons.Count != 0)
         {
-            ClaimCoinsButtons[i].GetComponent<Button>().interactable = true;
-            LeanTween.delayedCall(3f, () => { UpdatePlayerLevelUI(); xpSlider.value = WhalePassAPI.instance.CurrentExp; xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp; });
+            for (int i = 0; i < playerLevel; i++)
+            {
+
+                ClaimCoinsButtons[i].GetComponent<Button>().interactable = true;
+                LeanTween.delayedCall(3f, () => {
+                    UpdatePlayerLevelUI();
+                    if (xpSlider != null)
+                        xpSlider.value = WhalePassAPI.instance.CurrentExp;
+                    if (xpMegaSlider != null)
+                        xpMegaSlider.value = WhalePassAPI.instance.CurrentTotalExp;
+                });
+            }
         }
+       
     }
 
    
@@ -228,6 +238,8 @@ public class PlayerProgression : MonoBehaviour
             abilities[tempcardIndex].cardSlider.transform.localScale = Vector3.Lerp(targetScaleSlider, originalScale, t);
             yield return null;
         }
+        abilities[tempcardIndex].MainCard.transform.localScale = new Vector3(1,1,1);
+        abilities[tempcardIndex].cardSlider.transform.localScale = new Vector3(1, 1, 1);
     }
 
     public void UpdateCardUI(int index)

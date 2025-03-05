@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ClaimButton : MonoBehaviour
 {
-    //public PlayerInventory inventory;
+    public PlayerInventory inventory;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,7 +19,7 @@ public class ClaimButton : MonoBehaviour
     }
     public void ClaimNFT(int Index)
     {
-        //inventory.ClaimNFT(Index);
+        inventory.ClaimNFT(Index);
         gameObject.SetActive(false);
     }
 }

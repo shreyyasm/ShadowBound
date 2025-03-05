@@ -153,17 +153,7 @@ public class ChestManager : MonoBehaviour
                         card.transform.DOScale(1f, 0.1f);
                         //card.GetComponent<CardFlip>().slider.gameObject.SetActive(true);
                         //card.GetComponent<CardDisplay>().abilityNameText.gameObject.SetActive(true);
-                        if (PlayerProgression.Instance.abilities[abilityID].unlocked && PlayerProgression.Instance.abilities[abilityID].cardsHave <= 10)
-                        {
-                            card.GetComponent<CardFlip>().shine.SetActive(true);
-                            LeanTween.delayedCall(1f, () => {
-                                GameManager.instance.OpenCardUnlockedScreen();
-                                audioSource.PlayOneShot(SuspenseRewardSFX);
-                            });
-
-                            LeanTween.delayedCall(3.5f, () => { CardDisplayUnlocked[abilityID].ShowCard(abilityID); MoveCardUnlocked(abilityID, abilityID); });
-
-                        }
+                        
 
                     });
                 });
@@ -199,10 +189,11 @@ public class ChestManager : MonoBehaviour
     public AudioClip OpenChestSFX;
     public void BuyChest()
     {
-        if (PlayerProgression.Instance.coins > 1000)
+        if (PlayerProgression.Instance.coins >= 1000)
         {
             audioSource.PlayOneShot(PlayerProgression.Instance.BuySFX);
             PlayerProgression.Instance.coins -= 1000;
+            PlayerProgression.Instance.coinText.text = "Coins:" + PlayerProgression.Instance.coins.ToString();
             EnemyStatsManager.enemyStats.coins = PlayerProgression.Instance.coins;
             GameManager.instance.OpenChestMenu();
             PlayerProgression.Instance.UpdateAllUI();

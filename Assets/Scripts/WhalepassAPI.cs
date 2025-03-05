@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Whalepass;
 
@@ -88,11 +89,27 @@ public class WhalePassAPI : MonoBehaviour
             playerId = PlayerPrefs.GetString(playerName);
             playerNameText.text = PlayerPrefs.GetString(playerId);
             playerNameMenu.SetActive(false); // Hide menu after saving
-            EnrollPlayer();
-            CheckPlayer_Inventory();
-            GettingBattlePass();
-            PlayerBaseResponse();
-            
+                                             // Load the saved name if it exists
+            string savedName = PlayerPrefs.GetString(playerId);
+            if (!string.IsNullOrEmpty(savedName))
+            {
+
+                playerId = PlayerPrefs.GetString(playerId);
+                if (playerNameMenu != null)
+                {
+                    playerNameMenu.SetActive(false); // Hide menu if name exists
+                    EnrollPlayer();
+                    CheckPlayer_Inventory();
+                    GettingBattlePass();
+                    PlayerBaseResponse();
+                    LeanTween.delayedCall(1f, () => { PlayerProgression.Instance.xpText.text = $"Next Level: {WhalePassAPI.instance.CurrentExp} / {WhalePassAPI.instance.NextLevelExp - WhalePassAPI.instance.ExpRequiredLastlevel}"; });
+                    
+                    return;
+                }
+
+            }
+
+
         }
     }
 
