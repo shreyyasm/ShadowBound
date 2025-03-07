@@ -5207,6 +5207,8 @@ MonoBehaviour:
   - {fileID: 928315394}
   - {fileID: 559886253}
   unlockedChapters: 1
+  audioSource: {fileID: 0}
+  AudioClip: {fileID: 0}
 --- !u!114 &304675105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14036,63 +14038,6 @@ MonoBehaviour:
   m_MinRegionArea: 0
   m_HideEditorLogs: 0
   m_NavMeshData: {fileID: 23800000, guid: 96e98c7ab4644f5428f476ba6f5e0ef7, type: 2}
---- !u!1 &659135402
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 659135403}
-  - component: {fileID: 659135404}
-  m_Layer: 0
-  m_Name: Whalepass Manager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &659135403
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 659135402}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 138.25697, y: -11.053925, z: 1.703822}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &659135404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 659135402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18612f1076e4d13409201874cdf686c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GameId: fb52371f-7f78-4fed-a212-49ef8cd047ac
-  ApiKey: 37c020b45087e9d5dd9c70c198a35a0b
-  BattlePassId: 2c97a841-2a60-4bc5-8c55-ce99ca4e79b6
-  nameInputField: {fileID: 0}
-  playerId: 
-  playerNameMenu: {fileID: 0}
-  playerNameText: {fileID: 0}
-  currentLevel: 0
-  CurrentTotalExp: 0
-  CurrentExp: 0
-  NextLevelExp: 0
-  ExpRequiredLastlevel: 0
-  GameData: {fileID: 0}
 --- !u!1001 &663815960
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34500,74 +34445,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1705117143}
   m_CullTransparentMesh: 1
---- !u!1 &1710396387
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1710396388}
-  - component: {fileID: 1710396389}
-  m_Layer: 0
-  m_Name: Player Progession
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1710396388
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1710396387}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.633863, y: 7.038842, z: -8.234788}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1710396389
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1710396387}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19f5a263e80b5984c96b4ca70cae6602, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: b5116ae1c523e5b4094d609c4a44b430, type: 2}
-  playerLevel: 1
-  playerXP: 0
-  coins: 0
-  xpThresholds: 00000000640000002c01000058020000e8030000
-  abilities: []
-  levelText: {fileID: 0}
-  xpText: {fileID: 0}
-  coinText: {fileID: 0}
-  chestPanel: {fileID: 0}
-  shopPanel: {fileID: 0}
-  chestRewardContainer: {fileID: 0}
-  abilityCardPrefab: {fileID: 0}
-  audioSource: {fileID: 0}
-  BuySFX: {fileID: 0}
-  UnlockedSFX: {fileID: 0}
-  ClaimCoinsButtons: []
-  xpSlider: {fileID: 0}
-  xpMegaSlider: {fileID: 0}
-  popScale: 1.2
-  popDuration: 0.3
-  NotEnoughMoney: {fileID: 0}
-  ChestManager: {fileID: 0}
-  suspenseRewardSFX: {fileID: 0}
 --- !u!1001 &1710859259
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45163,8 +45040,6 @@ SceneRoots:
   - {fileID: 1559210593}
   - {fileID: 467538269}
   - {fileID: 689926028}
-  - {fileID: 1710396388}
-  - {fileID: 659135403}
   - {fileID: 166508365}
   - {fileID: 156241453}
   - {fileID: 1659593341}
